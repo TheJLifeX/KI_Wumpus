@@ -7,6 +7,8 @@ import de.fh.wumpus.enums.HunterActionEffect;
 import java.util.Hashtable;
 import java.util.Map;
 
+/* Test */
+
 /*
  * DIESE KLASSE VERÄNDERN SIE BITTE NUR AN DEN GEKENNZEICHNETEN STELLEN
  * wenn die Bonusaufgabe bewertet werden soll.
