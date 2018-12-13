@@ -154,7 +154,7 @@ public class MyAgent extends WumpusHunterAgent {
 		HunterAction.GRAB
 		HunterAction.QUIT_GAME
 		*/
-		// text
+		
 		nextAction = HunterAction.GO_FORWARD;
 		System.out.println("nextAction: "+nextAction);
 		return nextAction;
