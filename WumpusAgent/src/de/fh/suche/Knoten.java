@@ -1,4 +1,4 @@
-package suche;
+package de.fh.suche;
 
 import de.fh.pacman.enums.PacmanAction;
 import de.fh.pacman.enums.PacmanTileType;

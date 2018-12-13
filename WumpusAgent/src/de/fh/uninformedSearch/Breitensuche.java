@@ -1,4 +1,4 @@
-package uninformedSearch;
+package de.fh.uninformedSearch;
 
 import de.fh.pacman.PacmanPercept;
 import de.fh.suche.Knoten;

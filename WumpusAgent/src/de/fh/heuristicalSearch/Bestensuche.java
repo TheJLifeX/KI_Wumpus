@@ -1,4 +1,4 @@
-package heuristicalSearch;
+package de.fh.heuristicalSearch;
 
 import de.fh.pacman.PacmanPercept;
 import de.fh.pacman.enums.PacmanTileType;

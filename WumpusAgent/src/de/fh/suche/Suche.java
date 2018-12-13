@@ -1,4 +1,4 @@
-package suche;
+package de.fh.suche;
 
 
 import de.fh.heuristicalSearch.HeuristicSearch;
