@@ -2,24 +2,24 @@ package de.fh.blanks;
 
 public class CellInfo
 {
-	private CellTyp type;
+	private CellType type;
     private double probability;
 
-    public CellInfo(CellTyp type, double probability)
+    public CellInfo(CellType type, double probability)
     {
     	 this.type = type;
         this.probability = probability; 
     }
     
-    public CellInfo(CellTyp type) {
+    public CellInfo(CellType type) {
     	this.type = type;
     }
 
-	public CellTyp getType() {
+	public CellType getType() {
 		return type;
 	}
 
-	public void setType(CellTyp type) {
+	public void setType(CellType type) {
 		this.type = type;
 	}
 

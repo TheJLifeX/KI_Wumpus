@@ -1,16 +1,190 @@
 package de.fh.blanks;
 
+import de.fh.wumpus.HunterPercept;
+import de.fh.wumpus.enums.HunterAction;
+import javafx.util.Pair;
+
 import java.util.ArrayList;
 
-public class HunterWorld<Typ> // Warum Generics ?
+public class HunterWorld<Typ>
 {
+	/**
+	 * 2D-Array with locatable world information. Other information that has no location (e.g. number of arrows)
+	 * can not be reasonably stored here.
+	 */
     private ArrayList<ArrayList<Typ>> world;
+
+	/**
+	 * Current HunterPosition. Always 1, 1 at the start.
+	 */
+	private Point hunterPosition = new Point(1, 1);
+
+	/**
+	 * Gold Position. Always unknown at the start.
+	 */
+	private Point goldPosition = new Point(-1, -1);
+
+	/**
+	 * Current line-of-sight of Hunter. Default is always East(siehe Aufgabenstellung).
+	 */
+	private Direction hunterDirection = Direction.EAST;
+
+	/**
+	 * Stores if Hunter has gold.
+	 */
+	private boolean hasGold = false;
+
+	/**
+	 * Stores if Wumpus is alive (only applicable to world with one wumpus)
+	 * // TODO: Multiple Wumpi
+	 */
+	private boolean wumpusAlive = true;
+
+	/**
+	 * Stores number of Arrows the Hunter currently has.
+	 * // TODO: Im Konstruktor übergeben, falls möglich.
+	 */
+	private int numArrows = 5;
 
     public HunterWorld()
     {
         world = new ArrayList<ArrayList<Typ>>();
     }
-    
+
+	/**
+	 * Returns current line-of-sight of Hunter.
+	 * @return Aktuelle Blickrichtung des Hunters.
+	 */
+	public Direction getHunterDirection()
+	{
+		return hunterDirection;
+	}
+
+	/**
+	 * Processes given HunterPercept and updates this HunterWorld accordingly.
+	 * @param percept Given HunterPercept.
+	 */
+	public void processPercepts(HunterPercept percept)
+	{
+		if (percept.isBump())
+		{
+		}
+
+		if (percept.isBreeze())
+		{
+
+		}
+		if (percept.isGlitter())
+		{
+
+		}
+		if (percept.isRumble())
+		{
+
+		}
+		if (percept.isScream())
+		{
+
+		}
+		if (percept.isStench())
+		{
+
+		}
+	}
+
+	/**
+	 * Processes given HunterAction and updates this HunterWorld accordingly.
+	 * @param action Given HunterAction.
+	 * @implNote Das wird ein riesiger switch. Andere Möglichkeit Polymorphie ? Vorschläge erwünscht!
+	 */
+	public void processActions(HunterAction action)
+	{
+		switch (action)
+		{
+			case TURN_LEFT:
+			{
+				switch(hunterDirection)
+				{
+					case NORTH:
+						hunterDirection = Direction.WEST;
+						break;
+					case EAST:
+						hunterDirection = Direction.NORTH;
+						break;
+					case SOUTH:
+						hunterDirection = Direction.EAST;
+						break;
+					case WEST:
+						hunterDirection = Direction.SOUTH;
+						break;
+				}
+				break;
+			}
+			case TURN_RIGHT:
+			{
+				switch(hunterDirection)
+				{
+					case NORTH:
+						hunterDirection = Direction.EAST;
+						break;
+					case EAST:
+						hunterDirection = Direction.SOUTH;
+						break;
+					case SOUTH:
+						hunterDirection = Direction.WEST;
+						break;
+					case WEST:
+						hunterDirection = Direction.NORTH;
+						break;
+				}
+				break;
+			}
+			case GRAB:
+			{
+				// TODO: if HunterPosiion == GoldPosition => hasGold = true
+				if (hunterPosition.equals(goldPosition))
+					hasGold = true;
+				break;
+			}
+			case SIT:
+			{
+				// TODO: Keine Ahnung, was man hier machen kann.
+				break;
+			}
+			case SHOOT:
+			{
+				// TODO: if scream => numWumpi--, numArrows--
+				if (numArrows != 0)
+					numArrows--;
+				break;
+			}
+			case GO_FORWARD:
+			{
+				switch(hunterDirection)
+				{
+					case NORTH:
+						hunterPosition.setY(hunterPosition.getY() - 1);
+						break;
+					case EAST:
+						hunterPosition.setX(hunterPosition.getX() + 1);
+						break;
+					case SOUTH:
+						hunterPosition.setY(hunterPosition.getY() + 1);
+						break;
+					case WEST:
+						hunterPosition.setX(hunterPosition.getX() - 1);
+						break;
+				}
+				break;
+			}
+			case QUIT_GAME:
+			{
+				// TODO: Keine Ahnung, was man hier machen kann.
+				break;
+			}
+		}
+	}
+
     public Typ get(int x, int y) {
     	if( x < 0 ||  y < 0) {
     		return null;
@@ -92,4 +266,13 @@ public class HunterWorld<Typ> // Warum Generics ?
     	}
     	System.out.println(out);
     }
+
+    @Override
+	public String toString()
+	{
+		StringBuilder s = new StringBuilder("HunterWorld\n----------\n");
+
+
+		return s.toString();
+	}
 }

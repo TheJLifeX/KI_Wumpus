@@ -1,11 +1,14 @@
 package de.fh.blanks;
 
-public enum CellTyp {
+public enum CellType
+{
     WUMPUS,
     STENCH,
     GLITTER,
     BREEZE,
     BUMP,
     PIT,
-    SCREAM
+    SCREAM,
+    HUNTER,
+    EMPTY
 }

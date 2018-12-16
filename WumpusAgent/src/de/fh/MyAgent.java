@@ -1,6 +1,8 @@
 package de.fh;
 
 import de.fh.agent.WumpusHunterAgent;
+import de.fh.blanks.CellInfo;
+import de.fh.blanks.HunterWorld;
 import de.fh.wumpus.HunterPercept;
 import de.fh.wumpus.enums.HunterAction;
 import de.fh.wumpus.enums.HunterActionEffect;
@@ -18,6 +20,7 @@ public class MyAgent extends WumpusHunterAgent {
 	HunterPercept percept;
 	HunterActionEffect actionEffect;
 	Hashtable<Integer, Integer> stenchRadar;
+	HunterWorld<CellInfo> world = new HunterWorld<>();
 	
 	public static void main(String[] args) {
 
@@ -51,8 +54,7 @@ public class MyAgent extends WumpusHunterAgent {
 		 */
 		this.percept = percept;
 
-        /*
-         Aktuelle Reaktion des Server auf die letzte übermittelte Action.
+         // Aktuelle Reaktion des Server auf die letzte übermittelte Action.
 
          // Alle möglichen Serverrückmeldungen:
          if(actionEffect == HunterActionEffect.GAME_INITIALIZED) {
@@ -64,7 +66,6 @@ public class MyAgent extends WumpusHunterAgent {
          }
 
          if(actionEffect == HunterActionEffect.BUMPED_INTO_WALL) {
-         //Letzte Bewegungsaktion führte in eine Wand
          }
 
          if(actionEffect == HunterActionEffect.BUMPED_INTO_HUNTER) {
@@ -87,7 +88,6 @@ public class MyAgent extends WumpusHunterAgent {
          if(actionEffect == HunterActionEffect.NO_MORE_SHOOTS) {
          //Schuss ungültig, keine Pfeile mehr
          }
-         */
 
 		System.out.println("-------------------------------");
 		this.actionEffect = actionEffect;
@@ -157,6 +157,9 @@ public class MyAgent extends WumpusHunterAgent {
 		
 		nextAction = HunterAction.GO_FORWARD;
 		System.out.println("nextAction: "+nextAction);
+
+		world.processActions(nextAction);
+
 		return nextAction;
 	}
 }
