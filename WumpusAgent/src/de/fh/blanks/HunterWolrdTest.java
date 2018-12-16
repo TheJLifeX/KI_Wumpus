@@ -12,6 +12,8 @@ public class HunterWolrdTest {
 		world.add(2, 3, new CellInfo(CellTyp.BREEZE));
 		CellInfo previousCellInfo = world.set(2,3, new CellInfo(CellTyp.WUMPUS));
 		world.set(2, 4, new CellInfo(CellTyp.BREEZE));
+		world.set(3, 4, new CellInfo(CellTyp.BREEZE));
+		world.set(4, 4, new CellInfo(CellTyp.BREEZE));
 		
 		world.print();
 		
