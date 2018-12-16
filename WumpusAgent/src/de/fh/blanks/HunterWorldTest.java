@@ -1,6 +1,7 @@
 package de.fh.blanks;
 
-public class HunterWolrdTest {
+public class HunterWorldTest
+{
 
 	public static void main(String[] args) {
 		HunterWorld<CellInfo> world = new HunterWorld<>();
@@ -14,6 +15,7 @@ public class HunterWolrdTest {
 		world.set(2, 4, new CellInfo(CellTyp.BREEZE));
 		world.set(3, 4, new CellInfo(CellTyp.BREEZE));
 		world.set(4, 4, new CellInfo(CellTyp.BREEZE));
+		world.set(0, 0, new CellInfo())
 		
 		world.print();
 		

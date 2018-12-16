@@ -2,7 +2,7 @@ package de.fh.blanks;
 
 import java.util.ArrayList;
 
-public class HunterWorld<Typ>
+public class HunterWorld<Typ> // Warum Generics ?
 {
     private ArrayList<ArrayList<Typ>> world;
 
@@ -37,7 +37,7 @@ public class HunterWorld<Typ>
     		return previousCellInfo;
 			
 		} catch (IndexOutOfBoundsException e) {
-			this.add(x, y, newCellInfo);
+			this.add(x, y, newCellInfo); // Warum wird hinzugefügt, wenn Exception ?
 			return null;
 		}
     }
