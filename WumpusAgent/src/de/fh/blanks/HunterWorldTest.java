@@ -25,7 +25,5 @@ public class HunterWorldTest
 				else
 					world.add(row, col, new CellInfo(CellType.STENCH, 0.3));
 			}
-
-		world.print();
 	}
 }

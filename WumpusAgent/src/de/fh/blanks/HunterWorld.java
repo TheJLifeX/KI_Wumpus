@@ -14,20 +14,36 @@ public class HunterWorld<Typ>
 	 */
     private ArrayList<ArrayList<Typ>> world;
 
+    /**
+     * Previous HunterPercept that was given to this HunterWorld.
+     */
+    private HunterPercept previousPercept = null;
+
+    /**
+     * Previous HunterAction that was given to this HunterWorld.
+     */
+    private HunterAction previousAction = null;
+
 	/**
 	 * Current HunterPosition. Always 1, 1 at the start.
 	 */
 	private Point hunterPosition = new Point(1, 1);
 
+    /**
+     * Current line-of-sight of Hunter. Default is always East(siehe Aufgabenstellung).
+     */
+    private Direction hunterDirection = Direction.EAST;
+
+    /**
+     * Stores number of Arrows the Hunter currently has.
+     * // TODO: Im Konstruktor übergeben, falls möglich.
+     */
+    private int numArrows = 5;
+
 	/**
 	 * Gold Position. Always unknown at the start.
 	 */
 	private Point goldPosition = new Point(-1, -1);
-
-	/**
-	 * Current line-of-sight of Hunter. Default is always East(siehe Aufgabenstellung).
-	 */
-	private Direction hunterDirection = Direction.EAST;
 
 	/**
 	 * Stores if Hunter has gold.
@@ -39,12 +55,6 @@ public class HunterWorld<Typ>
 	 * // TODO: Multiple Wumpi
 	 */
 	private boolean wumpusAlive = true;
-
-	/**
-	 * Stores number of Arrows the Hunter currently has.
-	 * // TODO: Im Konstruktor übergeben, falls möglich.
-	 */
-	private int numArrows = 5;
 
     public HunterWorld()
     {
@@ -64,7 +74,7 @@ public class HunterWorld<Typ>
 	 * Processes given HunterPercept and updates this HunterWorld accordingly.
 	 * @param percept Given HunterPercept.
 	 */
-	public void processPercepts(HunterPercept percept)
+	public void processPercept(HunterPercept percept)
 	{
 		if (percept.isBump())
 		{
@@ -90,6 +100,7 @@ public class HunterWorld<Typ>
 		{
 
 		}
+		previousPercept = percept;
 	}
 
 	/**
@@ -97,7 +108,7 @@ public class HunterWorld<Typ>
 	 * @param action Given HunterAction.
 	 * @implNote Das wird ein riesiger switch. Andere Möglichkeit Polymorphie ? Vorschläge erwünscht!
 	 */
-	public void processActions(HunterAction action)
+	public void processAction(HunterAction action)
 	{
 		switch (action)
 		{
@@ -160,6 +171,10 @@ public class HunterWorld<Typ>
 			}
 			case GO_FORWARD:
 			{
+			    // TODO: Darf ich hier einfach returnen ? Ja, oder ? Problem: Inkrementiert einen zu viel, weil Bump durch forward erkannt wird.
+			    if (previousPercept.isBump())
+                    return;
+
 				switch(hunterDirection)
 				{
 					case NORTH:
@@ -183,6 +198,7 @@ public class HunterWorld<Typ>
 				break;
 			}
 		}
+		previousAction = action;
 	}
 
     public Typ get(int x, int y) {
@@ -270,8 +286,22 @@ public class HunterWorld<Typ>
     @Override
 	public String toString()
 	{
-		StringBuilder s = new StringBuilder("HunterWorld\n----------\n");
+	    String s = "HUNTER_WORLD\n{ hunterPosition: " + hunterPosition + ", hunterDirection: " + hunterDirection + ", goldPosition: " + goldPosition + ", hasGold: " + hasGold
+                + ", numArrows: " + numArrows + ", wumpusAlive: " + wumpusAlive + " }\n";
 
+	    int rows = world.size();
+	    for (int row = 0; row < rows; row++)
+        {
+            for (int col = 0; col < world.get(row).size(); col++)
+            {
+                Typ cellInfo = get(row, col);
+                if (cellInfo != null)
+                    s += get(row, col).toString() + "  ";
+                else
+                    s += "NULL         ";
+            }
+            s += "\n";
+        }
 
 		return s.toString();
 	}

@@ -52,7 +52,7 @@ public class MyAgent extends WumpusHunterAgent {
 		 * aktuelle Wahrnehmung des Hunters.
 		 * Beim Wumpus erhalten Sie je nach Level mehr oder weniger Mapinformationen.
 		 */
-		this.percept = percept;
+		this.percept = percept; // Warum wird diese Zuweisung gemacht, wenn die Informationen da drinn nicht stimmen oder nicht geupdated werden ? isBump ist falsch
 
          // Aktuelle Reaktion des Server auf die letzte übermittelte Action.
 
@@ -66,7 +66,10 @@ public class MyAgent extends WumpusHunterAgent {
          }
 
          if(actionEffect == HunterActionEffect.BUMPED_INTO_WALL) {
+             this.percept.setBump(true);
          }
+         else
+             this.percept.setBump(false);
 
          if(actionEffect == HunterActionEffect.BUMPED_INTO_HUNTER) {
          //Nur bei Multiplayermodus
@@ -78,15 +81,19 @@ public class MyAgent extends WumpusHunterAgent {
          }
 
          if(actionEffect == HunterActionEffect.GOLD_FOUND) {
-         //Gold wurde aufgesammelt
+             this.percept.setGlitter(true);
          }
+         else
+             this.percept.setGlitter(false);
 
          if(actionEffect == HunterActionEffect.WUMPUS_KILLED) {
-         //Ein Wumpus wurde getroffen
+             this.percept.setScream(true);
          }
+         else
+             this.percept.setScream(false);
 
          if(actionEffect == HunterActionEffect.NO_MORE_SHOOTS) {
-         //Schuss ungültig, keine Pfeile mehr
+             // TODO: Percept hat hierfür keinen Wert
          }
 
 		System.out.println("-------------------------------");
@@ -125,7 +132,8 @@ public class MyAgent extends WumpusHunterAgent {
 		}
 		System.out.println("");
 
-
+		world.processPercept(this.percept);
+		System.out.println("@updateState: " + world);
 	}
 
 	/**
@@ -155,10 +163,14 @@ public class MyAgent extends WumpusHunterAgent {
 		HunterAction.QUIT_GAME
 		*/
 		
-		nextAction = HunterAction.GO_FORWARD;
+		if (percept.isBump())
+            nextAction = HunterAction.TURN_RIGHT;
+		else
+		    nextAction = HunterAction.GO_FORWARD;
 		System.out.println("nextAction: "+nextAction);
 
-		world.processActions(nextAction);
+		world.processAction(nextAction);
+		System.out.println("@action" + world);
 
 		return nextAction;
 	}
