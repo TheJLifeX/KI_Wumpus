@@ -19,19 +19,20 @@ public abstract class Suche {
 
     public enum Suchstrategie{TIEFENSUCHE, BREITENSUCHE, DIJKSTAR, BESTENSUCHE, ASTERN}
 
+    // Unser Ziel: Gold eingesammelt und auf 1, 1.
     private Knoten zielKnoten;
     private PacmanPercept pacmanPercept;
 
-     //In der Openlist befinden sich die zu expandierenden Knoten
+     // In der Openlist befinden sich die zu expandierenden Knoten
     protected List<Knoten> openList;
 
-    //In der Closelist befinden sich die bereits expandierenten Knoten als Hashwert um Loops verhindern
+    // In der Closelist befinden sich die bereits expandierenten Knoten als Hashwert um Loops verhindern
     protected HashSet<Integer> closedList;
 
     private int countSysout = 0;
 
-
-    public Suche(PacmanPercept pacmanPercept, Knoten zielKnoten){
+    public Suche(PacmanPercept pacmanPercept, Knoten zielKnoten)
+    {
         this.zielKnoten = zielKnoten;
         this.pacmanPercept = pacmanPercept;
 
@@ -46,19 +47,17 @@ public abstract class Suche {
      *
      * @return Ziel Knoten
      * */
-     public Knoten start(){
-         //Baue den Baum gemäß gewünschter Suche auf
+     public Knoten start()
+     {
+         // Baue den Baum gemäß gewünschter Suche auf
 
-         if (this.zielKnoten == null || this.pacmanPercept == null) {
+         if (this.zielKnoten == null || this.pacmanPercept == null)
              throw new NullPointerException("Ungültiger Zielzustand");
-         }
 
-
-         //Erzeuge Wurzelknoten
+         // Erzeuge Wurzelknoten. Knoten nimmt dann HunterWorld
          this.fuegeKnotenEin(new Knoten(pacmanPercept.getView(), pacmanPercept.getPosition()));
 
-
-         //Solange noch Expansionskandidaten vorhanden (Mindestens die Wurzel)
+         // Solange noch Expansionskandidaten vorhanden (Mindestens die Wurzel)
          while (!openList.isEmpty()) {
         	 
              //Es wird *immer* der erste Knoten aus der Openlist entnommen

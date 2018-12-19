@@ -2,17 +2,16 @@ package de.fh.blanks;
 
 import de.fh.wumpus.HunterPercept;
 import de.fh.wumpus.enums.HunterAction;
-import javafx.util.Pair;
 
 import java.util.ArrayList;
 
-public class HunterWorld<Typ>
+public class HunterWorld
 {
 	/**
 	 * 2D-Array with locatable world information. Other information that has no location (e.g. number of arrows)
 	 * can not be reasonably stored here.
 	 */
-    private ArrayList<ArrayList<Typ>> world;
+    private ArrayList<ArrayList<CellInfo>> world;
 
     /**
      * Previous HunterPercept that was given to this HunterWorld.
@@ -58,16 +57,37 @@ public class HunterWorld<Typ>
 
     public HunterWorld()
     {
-        world = new ArrayList<ArrayList<Typ>>();
+        world = new ArrayList<ArrayList<CellInfo>>();
     }
 
-	/**
-	 * Returns current line-of-sight of Hunter.
-	 * @return Aktuelle Blickrichtung des Hunters.
-	 */
-	public Direction getHunterDirection()
+    @Override
+	public HunterWorld clone()
 	{
-		return hunterDirection;
+		HunterWorld h = new HunterWorld();
+		h.hunterPosition = this.hunterPosition;
+		h.hunterDirection = this.hunterDirection;
+		h.previousPercept = this.previousPercept;
+		h.previousAction = this.previousAction;
+		h.numArrows = this.numArrows;
+		h.wumpusAlive = this.wumpusAlive;
+		h.hasGold = this.hasGold;
+		h.goldPosition = this.goldPosition;
+
+		h.world = (ArrayList<ArrayList<CellInfo>>)this.world.clone();
+
+		/*for (int row = 0; row < this.world.size(); ++row)
+			for (int col = 0; col < this.world.get(row).size(); ++col)
+				h.world.add()*/
+		return h;
+	}
+
+	public HunterAction produceAction()
+	{
+		// TODO: Complicated Calculations that returns correct action.
+		if (hunterPosition.getX() % 2 == 0)
+			return HunterAction.TURN_RIGHT;
+		else
+			return HunterAction.GO_FORWARD;
 	}
 
 	/**
@@ -171,7 +191,7 @@ public class HunterWorld<Typ>
 			}
 			case GO_FORWARD:
 			{
-			    // TODO: Darf ich hier einfach returnen ? Ja, oder ? Problem: Inkrementiert einen zu viel, weil Bump durch forward erkannt wird.
+			    // TODO: Darf ich hier einfach returnen ? Ja, oder ? Problem: Inkrementiert einen zu viel, weil Bump durch forward erkannt wird. Falsche Stelle
 			    if (previousPercept.isBump())
                     return;
 
@@ -201,38 +221,40 @@ public class HunterWorld<Typ>
 		previousAction = action;
 	}
 
-    public Typ get(int x, int y) {
+    public CellInfo get(int x, int y)
+	{
     	if( x < 0 ||  y < 0) {
     		return null;
     	}
     	
     	try {
-    		ArrayList<Typ> row = this.world.get(y);
-    		Typ cellInfo = row.get(x);
-    		return cellInfo;
+    		ArrayList<CellInfo> row = this.world.get(y);
+    		return row.get(x);
 			
-		} catch (IndexOutOfBoundsException e) {
+		} catch (IndexOutOfBoundsException e)
+		{
 			return null;
 		}
     }
     
-    public Typ set(int x, int y, Typ newCellInfo) {
+    public CellInfo set(int x, int y, CellInfo newCellInfo)
+	{
     	if( x < 0 ||  y < 0) {
     		return null;
     	}
     	
     	try {
-    		ArrayList<Typ> row = this.world.get(y);
-    		Typ previousCellInfo = row.set(x, newCellInfo);
+    		ArrayList<CellInfo> row = this.world.get(y);
+    		CellInfo previousCellInfo = row.set(x, newCellInfo);
     		return previousCellInfo;
-			
+
 		} catch (IndexOutOfBoundsException e) {
 			this.add(x, y, newCellInfo); // Warum wird hinzugefügt, wenn Exception ?
 			return null;
 		}
     }
     
-    public boolean add(int x, int y, Typ newCellInfo) {
+    public boolean add(int x, int y, CellInfo newCellInfo) {
     	if( x < 0 ||  y < 0) {
     		return false;
     	}
@@ -240,9 +262,9 @@ public class HunterWorld<Typ>
     	try {
     		if( y >= this.world.size()) {
     			
-    			ArrayList<Typ> newRow = null;
+    			ArrayList<CellInfo> newRow = null;
     			for(int j = this.world.size(); j <= y; j++) {
-    				newRow = new ArrayList<Typ>();
+    				newRow = new ArrayList<CellInfo>();
         			this.world.add(newRow);
         			for(int k = 0; k < x; k++) {
         				newRow.add(null);
@@ -251,7 +273,7 @@ public class HunterWorld<Typ>
     			newRow.add(newCellInfo);
     		} else {
     			
-    			ArrayList<Typ> row = this.world.get(y);
+    			ArrayList<CellInfo> row = this.world.get(y);
     			if( x >= row.size()) {  				
         			for(int i = row.size(); i < x; i++) {
         				row.add(null);
@@ -271,7 +293,7 @@ public class HunterWorld<Typ>
     	String out = "";
     	for(int y = 0 ; y < this.world.size(); y++) {
     		for(int x = 0; x < this.world.get(y).size(); x++) {
-    			final Typ cellInfo = this.get(x, y);
+    			final CellInfo cellInfo = this.get(x, y);
     			if( cellInfo != null) {
     				out += this.get(x, y).toString() + "  ";
     			} else {
@@ -294,7 +316,7 @@ public class HunterWorld<Typ>
         {
             for (int col = 0; col < world.get(row).size(); col++)
             {
-                Typ cellInfo = get(row, col);
+                CellInfo cellInfo = get(row, col);
                 if (cellInfo != null)
                     s += get(row, col).toString() + "  ";
                 else
@@ -303,6 +325,40 @@ public class HunterWorld<Typ>
             s += "\n";
         }
 
-		return s.toString();
+		return s;
+	}
+
+	public Point getHunterPosition()
+	{
+		return hunterPosition;
+	}
+
+	/**
+	 * Returns current line-of-sight of Hunter.
+	 * @return Aktuelle Blickrichtung des Hunters.
+	 */
+	public Direction getHunterDirection()
+	{
+		return hunterDirection;
+	}
+
+	public int getNumArrows()
+	{
+		return numArrows;
+	}
+
+	public Point getGoldPosition()
+	{
+		return goldPosition;
+	}
+
+	public boolean getHasGold()
+	{
+		return hasGold;
+	}
+
+	public boolean getWumpusAlive()
+	{
+		return wumpusAlive;
 	}
 }

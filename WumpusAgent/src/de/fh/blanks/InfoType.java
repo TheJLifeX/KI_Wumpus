@@ -1,6 +1,6 @@
 package de.fh.blanks;
 
-public enum CellType
+public enum InfoType
 {
     WUMPUS,
     STENCH,
@@ -10,5 +10,6 @@ public enum CellType
     PIT,
     SCREAM,
     HUNTER,
-    EMPTY
+    EMPTY,
+    WALL
 }

@@ -45,7 +45,8 @@ public class MyAgent extends WumpusHunterAgent {
 	 * @param actionEffect Reaktion des Servers auf vorhergewählte Aktion
 	 */
 	@Override
-	public void updateState(HunterPercept percept, HunterActionEffect actionEffect) {
+	public void updateState(HunterPercept percept, HunterActionEffect actionEffect)
+	{
 
 		/**
 		 * Je nach Sichtbarkeit & Schwierigkeitsgrad (laut Serverkonfiguration)
@@ -53,7 +54,8 @@ public class MyAgent extends WumpusHunterAgent {
 		 * Beim Wumpus erhalten Sie je nach Level mehr oder weniger Mapinformationen.
 		 */
 		this.percept = percept; // Warum wird diese Zuweisung gemacht, wenn die Informationen da drinn nicht stimmen oder nicht geupdated werden ? isBump ist falsch
-
+		System.out.println("Breeze" + percept.isBreeze() + ", isBump: " + percept.isBump() + ", " + percept.isStench() + ", " + percept.isScream() + ", " + percept.isRumble()
+		+ ", " + percept.isGlitter());
          // Aktuelle Reaktion des Server auf die letzte übermittelte Action.
 
          // Alle möglichen Serverrückmeldungen:
@@ -163,14 +165,11 @@ public class MyAgent extends WumpusHunterAgent {
 		HunterAction.QUIT_GAME
 		*/
 		
-		if (percept.isBump())
-            nextAction = HunterAction.TURN_RIGHT;
-		else
-		    nextAction = HunterAction.GO_FORWARD;
+		nextAction = world.produceAction();
 		System.out.println("nextAction: "+nextAction);
 
 		world.processAction(nextAction);
-		System.out.println("@action" + world);
+		System.out.println("@action: " + world);
 
 		return nextAction;
 	}
