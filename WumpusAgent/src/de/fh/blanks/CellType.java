@@ -2,13 +2,9 @@ package de.fh.blanks;
 
 public enum CellType
 {
-    WUMPUS,
+	WALL,
+	EMPTY,	
     STENCH,
-    GLITTER,
     BREEZE,
-    BUMP,
-    PIT,
-    SCREAM,
-    HUNTER,
-    EMPTY
+    GOLD
 }

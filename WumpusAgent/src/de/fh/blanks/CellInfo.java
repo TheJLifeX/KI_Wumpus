@@ -3,15 +3,34 @@ package de.fh.blanks;
 public class CellInfo
 {
 	private CellType type;
-    private double probability;
+    private double probabilityWumpus;
+    private double probabilityPit;
 
-    public CellInfo(CellType type, double probability)
+    public CellInfo(CellType type, double probabilityWumpus, double probabilityPit)
     {
-    	 this.type = type;
-        this.probability = probability; 
+    	this.type = type;
+    
+        this.probabilityWumpus = probabilityWumpus; 
+        this.probabilityPit = probabilityPit;
     }
     
-    public CellInfo(CellType type) {
+    public double getProbabilityWumpus() {
+		return probabilityWumpus;
+	}
+
+	public void setProbabilityWumpus(double probabilityWumpus) {
+		this.probabilityWumpus = probabilityWumpus;
+	}
+
+	public double getProbabilityPit() {
+		return probabilityPit;
+	}
+
+	public void setProbabilityPit(double probabilityPit) {
+		this.probabilityPit = probabilityPit;
+	}
+
+	public CellInfo(CellType type) {
     	this.type = type;
     }
 
@@ -23,17 +42,14 @@ public class CellInfo
 		this.type = type;
 	}
 
-	public double getProbability() {
-		return probability;
-	}
-
-	public void setProbability(double probability) {
-		this.probability = probability;
-	}
 	
     @Override
     public String toString() {
-    	return "(" + "T:" + type.name().substring(0, 1) + " P:" + this.probability + ")";
+    	if( this.type == CellType.WALL) {
+    		return "(" + type.name().substring(0, 2) + ")";
+    	} else {
+    		return "(" + type.name().substring(0, 2) + " Pp:" + this.getProbabilityPit() + " Pw:" + this.getProbabilityWumpus() + ")";
+    	}
     }
     
 }
