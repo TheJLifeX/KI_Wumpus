@@ -1,15 +1,13 @@
 package de.fh.heuristicalSearch;
 
-import de.fh.pacman.PacmanPercept;
-import de.fh.pacman.enums.PacmanTileType;
+import de.fh.blanks.HunterWorld;
+import de.fh.blanks.Point;
 import de.fh.suche.Knoten;
-
-import java.util.Comparator;
 
 public class Bestensuche extends HeuristicSearch{
 
-    public Bestensuche(PacmanPercept pacmanPercept, Knoten zielKnoten){
-        super(pacmanPercept, zielKnoten);
+    public Bestensuche(HunterWorld hunterWorld, Point zielPosition){
+        super(hunterWorld, zielPosition);
     }
 
 
@@ -26,14 +24,6 @@ public class Bestensuche extends HeuristicSearch{
 
         //TODO Bestensuche
 
-        int numDots = 0;
-        PacmanTileType[][] view = expansionsKandidat.getView();
-        for (int i = 0; i < view.length; i++)
-            for (int y = 0; y < view[0].length; y++)
-                if (view[i][y] == PacmanTileType.DOT)
-                    numDots++;
-
-        schaetzwert = numDots;
         //setzt die bisherigen Pfadkosten zu dem Knoten
         expansionsKandidat.setPfadkosten(pfadkosten);
         //Setzt den richtigen Schätzwert für den Knoten
@@ -55,13 +45,13 @@ public class Bestensuche extends HeuristicSearch{
         //Implementiert openList.add(Index,exp) mit dem richtigen Index gemäß Suchstrategie
         openList.add(0, expansionsKandidat);
 
-        openList.sort(new Comparator<Knoten>()
-        {
-            @Override
-            public int compare(Knoten o1, Knoten o2)
-            {
-                return Float.compare(o1.getBewertung(), o2.getBewertung());
-            }
-        });
+//        openList.sort(new Comparator<Knoten>()
+//        {
+//            @Override
+//            public int compare(Knoten o1, Knoten o2)
+//            {
+//                return Float.compare(o1.getBewertung(), o2.getBewertung());
+//            }
+//        });
     }
 }

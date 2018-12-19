@@ -1,251 +1,367 @@
 package de.fh.suche;
 
-import de.fh.pacman.enums.PacmanAction;
-import de.fh.pacman.enums.PacmanTileType;
-import de.fh.util.Vector2;
-
+import de.fh.blanks.CellInfo;
+import de.fh.blanks.Direction;
+import de.fh.blanks.Point;
+import de.fh.wumpus.enums.HunterAction;
+import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Created by daniel on 22.09.16.
- * Klasse fÃ¼r unsere Suchalgorithmen
+ * Based on the algorithm of daniel Created on 22.09.16. Klasse fÃ¼r unsere Suchalgorithmen
  */
 public class Knoten {
 
-    //Knoten haben bis auf die Wurzel VorgÃ¤nger
-    protected Knoten vorgaenger;
+	// Knoten haben bis auf die Wurzel Vorgänger
+	protected Knoten vorgaenger;
 
-    /**
-     * Knotenbewertung eines Knoten x nach f(x)=g(x)+h(x) mit
-     * g(x) die bisherigen Kosten vom Startknoten aus
-     * h(x) die geschÃ¤tzten Kosten von x bis zum Zielknoten
-     * @return die heuristische Bewertung des Knoten x
-     */
-    protected float pfadkosten = 0f;
-    protected float schaetzwert = 0f;
+	// Im diesem Knoten aktuelle Direction der Hunter
+	private Direction hunterDirection;
 
-    //Die Felderbelegung der (virtuellen) aktuellen Welt
-    //allerdings ohne den Pacman (Pacmanposition wird in pos gespeichert)
-    private PacmanTileType[][] view;
+	/**
+	 * Knotenbewertung eines Knoten x nach f(x)=g(x)+h(x) mit g(x) die bisherigen
+	 * Kosten vom Startknoten aus h(x) die geschÃ¤tzten Kosten von x bis zum
+	 * Zielknoten
+	 * 
+	 * @return die heuristische Bewertung des Knoten x
+	 */
+	protected float pfadkosten = 0f;
+	protected float schaetzwert = 0f;
 
-    //Die Felderbelegung wird zusÃ¤tzlich als Stringarray gespeichert
-    //um Knoten effizienter zu vergleichen
-    private String sView;
+	// Die Felderbelegung der (virtuellen) aktuellen Welt
+	// allerdings ohne den Hunter (HunterPostion wird in hunterPosition gespeichert)
+	private ArrayList<ArrayList<CellInfo>> view;
 
-    //Die Position des Pacmans, wÃ¤hrend der Suche
-    private Vector2 pos = new Vector2(0,0);
+	// Die Felderbelegung wird zusÃ¤tzlich als Stringarray gespeichert
+	// um Knoten effizienter zu vergleichen
+	private String sView;
 
-    //Ein Knoten erzeugt sich aus dem VorgÃ¤nger und Bewegungsrichtung
-    private LinkedBlockingQueue<PacmanAction> pacmanActionList = new LinkedBlockingQueue<PacmanAction>();
+	// Die Position der Hunter, während der Suche
+	private Point hunterPosition = new Point(0, 0);
 
-    public Knoten(PacmanTileType[][] view, Vector2 pos){
-        //Konstruktor fÃ¼r den Zielzustand und das Wurzelelement
-        //Der Wurzelknoten und Zielzustand hat keinen VorgÃ¤nger
-        this.vorgaenger = null;
-        //Die Wurzel kennt die Ausgangsposition des Pacmans
-        this.pos = pos;
+	// Konstruktor für den Wurzelknoten
+	public Knoten(ArrayList<ArrayList<CellInfo>> view, Point hunterPosition, Direction hunterDirection) {
 
-        //Erzeuge neues view auf Basis des gegebenen Views
-        this.view = new PacmanTileType[view.length][view[0].length];
-        this.view = copyArray(view);
+		// Der Wurzelknoten und Zielzustand hat keinen Vorgänger
+		this.vorgaenger = null;
 
-        //Der Zielzustand kennt keinen Position
-        if(this.pos != null){
-            //..die Wurzel schon
-            //LÃ¶sche den Agenten aus dem View
-            this.view[this.pos.getX()][this.pos.getY()] = PacmanTileType.EMPTY;
-        }
+		// Die Wurzel kennt die aktuelle position der Hunter
+		this.hunterPosition = hunterPosition;
 
-        //Erzeuge view as String
-        sView = view2String(this.view);
+		// Die Richtung der Hunter am Anfang des Suchalgorithmus
+		this.hunterDirection = hunterDirection;
 
-    }
+		// TODO ID:1 momentan ist die view für den Suchalgorithmus in einem Knoten irrelevant.
+		// bleibt zuerst so.
+		// Später wird man auch die view auch während des Suchalgorithmus aktualisiert.
+		this.view = view;
 
-    public Knoten(Knoten vorgaenger, PacmanAction bewegungsRichtung){
-        this.vorgaenger = vorgaenger;
+		// Erzeuge view as String
+		// Nur relevant für die Berechung der Hashcode
+		sView = this.view.toString();
 
-        //Erzeuge neues view auf Basis des VorgÃ¤ngers
-        this.view = new PacmanTileType[vorgaenger.getView().length][vorgaenger.getView()[0].length];
-        this.view = copyArray(vorgaenger.getView());
+	}
 
-        //Berechne die neue Position auf Basis der Bewegungsrichtung
-        this.pos = berechneNeuePosition(vorgaenger.getPos(), bewegungsRichtung);
+	// Konstruktor für Nachfolger Knoten.
+	public Knoten(Knoten vorgaenger, HunterAction action) {
+		this.vorgaenger = vorgaenger;
 
-        //Lasse dort den virtuellen Pacman das Dot fressen
-        this.view[this.pos.getX()][this.pos.getY()] = PacmanTileType.EMPTY;
+		// TODO eventuell Erzeuge neues view auf Basis des Vorgängers
+		// wie TODO ID:1
+		this.view = vorgaenger.getView();
 
-        //Erzeuge view as String
-        sView = view2String(this.view);
+		// HunterDirection der Vorgaenger, wird eventuell in der Methode berechneNeuePostion aktualisiert
+		this.hunterDirection = vorgaenger.getHunterDirection();
+		
+		// Die neue Position der Hunter auf Basis der Bewegungsrichtung
+		// PS: In berechNeuePostion wird auch die neue hunterDirection berechnet.
+		this.hunterPosition = berechneNeuePosition(vorgaenger.getPos(), vorgaenger.getHunterDirection(), action);
 
-    }
+		// Erzeuge view as String
+		// Nur relevant für die Berechung der Hashcode
+		this.sView = this.view.toString();
 
+	}
 
+	// Kopieren von 2-dimensionalen dymanische Liste.
+	// TODO ID:1  2-dimensionalen dymanische Liste  manuell kopieren.
+//    private ArrayList<ArrayList<CellInfo>> copyView(ArrayList<ArrayList<CellInfo>> view) {
+//        // 
+//        return new ArrayList<ArrayList<CellInfo>>();
+//    }
 
-    public LinkedBlockingQueue<PacmanAction> getPacmanActionList() {
-        return pacmanActionList;
-    }
+	/**
+	 * Prüft ob der Hunter gewünschte Position erreicht hat.
+	 */
+	public boolean isZiel(Point zielPositon) {
 
-    public float getPfadkosten() {
-        return pfadkosten;
-    }
+		if (this.hunterPosition.equals(zielPositon)) { // Der Hunter hat die gewünschte Postion erreicht.
+			return true;
+		}
+		return false;
+	}
 
-    public void setPfadkosten(float pfadkosten) {
-        this.pfadkosten = pfadkosten;
-    }
+	/**
+	 * Berechne aus dem:
+	 * 
+	 * view, 
+	 * HunterPosition, 
+	 * und HunterDirection  
+	 * 
+	 * einen Hashcode
+	 * 
+	 * @return
+	 */
+	@Override
+	public int hashCode() {
 
-    public Knoten getVorgaenger() {
-        return vorgaenger;
-    }
+		String hashString = new String(sView);
 
-    public void setSchaetzwert(float schaetzwert){
-        this.schaetzwert = schaetzwert;
-    }
+		if (this.hunterPosition != null) {
+			hashString += hunterPosition.toString();
+		}
 
-    public float getSchaetzwert(){
-        return this.schaetzwert;
-    }
+		if (this.hunterDirection != null) {
+			// PS: Damit Zwei Knoten mit gleiche HunterPosition, sich bei der
+			// HunterDirection unterscheiden können.
+			// Um Loops natürlich zu vermeinden.
+			hashString += this.hunterDirection.toString();
+		}
 
-    public float getBewertung(){
-        return pfadkosten + schaetzwert;
-    }
+		return hashString.hashCode();
+	}
 
-    public PacmanTileType[][] getView() {
-        return view;
-    }
+	/** Berechne die neue Positions der Hunter auf Basis der Bewegungsrichtung(
+	* HunterDirection + HunterAction )
+	* 
+	* oder 
+	* 
+	* Aktualisiert die HunterDirection auf Basis der HunterDirection + HunterAction.
+	* 
+	*/
+	
+	public Point berechneNeuePosition(Point vorgaengerPos, Direction vorgaengerDirection, HunterAction action) {
+		Point nachfolgerPos = new Point(vorgaengerPos.getX(), vorgaengerPos.getY());
 
-    public Vector2 getPos() {
-        return pos;
-    }
+		switch (action) {
+		case TURN_LEFT: {
+			switch (vorgaengerDirection) {
+			case NORTH:
+				this.hunterDirection = Direction.WEST;
+				break;
+			case EAST:
+				this.hunterDirection = Direction.NORTH;
+				break;
+			case SOUTH:
+				this.hunterDirection = Direction.EAST;
+				break;
+			case WEST:
+				this.hunterDirection = Direction.SOUTH;
+				break;
+			default:
+				throw new IllegalArgumentException("Unzulässige HunterAction");
+			}
+			break;
+		}
+		case TURN_RIGHT: {
+			switch (vorgaengerDirection) {
+			case NORTH:
+				this.hunterDirection = Direction.EAST;
+				break;
+			case EAST:
+				this.hunterDirection = Direction.SOUTH;
+				break;
+			case SOUTH:
+				this.hunterDirection = Direction.WEST;
+				break;
+			case WEST:
+				this.hunterDirection = Direction.NORTH;
+				break;
+			default:
+				throw new IllegalArgumentException("Unzulässige HunterAction");
+			}
+			break;
+		}
+		case GO_FORWARD: {
+			switch (vorgaengerDirection) {
+			case NORTH:
+				nachfolgerPos.setY(nachfolgerPos.getY() - 1);
+				break;
+			case EAST:
+				nachfolgerPos.setX(nachfolgerPos.getX() + 1);
+				break;
+			case SOUTH:
+				nachfolgerPos.setY(nachfolgerPos.getY() + 1);
+				break;
+			case WEST:
+				nachfolgerPos.setX(nachfolgerPos.getX() - 1);
+				break;
+			default:
+				throw new IllegalArgumentException("Unzulässige HunterAction");
+			}
+			break;
+		}
+		default:
+			throw new IllegalArgumentException("Unzulässige HunterAction");
+		}
 
+		return nachfolgerPos;
+	}
 
-    String view2String(PacmanTileType[][] view){
-
-        char[] cView = new char[this.view.length * view[0].length];
-        int index = 0;
-        //Erzeuge ein String fÃ¼r Debugzwecke
-        for(int row = 0; row <  this.view.length; row++){
-            for(int coloum = 0; coloum <  this.view[0].length; coloum++){
-                cView[index] = this.view[row][coloum].toString().charAt(0);
-                index++;
-            }
-        }
-
-        return new String(cView);
-
-    }
-
-
-    //Kopieren von 2-dimensionalen Arrays
-    private PacmanTileType[][] copyArray(PacmanTileType[][] view) {
-        // Kopieren manuell
-        PacmanTileType[][] newView = new PacmanTileType[view.length][view[0].length];
-
-        for (int spalte = 0; spalte < view.length; spalte++) {
-            for (int zeile = 0; zeile < view[0].length; zeile++) {
-                newView[spalte][zeile] = view[spalte][zeile];
-            }
-        }
-
-        return newView;
-    }
-
-    /**
-     * Ist der Konten der Zielzustand
-     *
-     * @param knoten
-     * @return
-     */
-    public boolean isZiel(Knoten knoten) {
-        Knoten vergleichsKandidat = knoten;
-
-        if (this.sView.equals(vergleichsKandidat.sView)){
-            //Die Welt mit ihren Dots ist gleich, ergo Zielzustand erreicht
-            //Die Position des Agenten spielt bei dieser Abfrage keine Rolle!
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Berechne aus dem view und Pacmanposition einen Hashcode
-     * @return
-     */
-    @Override
-    public int hashCode() {
-
-
-        String hashString = new String(sView);
-
-        //Der Zielzustand kennt keinen Position
-        if(this.pos != null) {
-            hashString += pos.toString();
-        }
-
-        return hashString.hashCode();
-    }
-
-    //Gebe den Knoten auf der Konsole aus
-    @Override
-    public String toString() {
-        String str = "";
-
-        str += "[" + this.pos.getX()+"," + this.pos.getY() + "]\n";
-        for (int row = 0; row < view[0].length; row++) {
-            for (int coloum = 0; coloum < view.length; coloum++) {
-                str += view[coloum][row] + " ";
-            }
-            str += "\n";
-        }
-
-        return str;
-    }
-
-
-    //Berechne die neue Positions des Pacmans auf Basis der Bewegungsrichtung
-    Vector2 berechneNeuePosition(Vector2 vorgaengerPos, PacmanAction bewegungsrichtung){
-        Vector2 nachfolgerPos = new Vector2(-1, -1);
-
-        if(bewegungsrichtung == PacmanAction.GO_NORTH)
-            nachfolgerPos.set(vorgaengerPos.getX(), vorgaengerPos.getY() - 1);
-        else if(bewegungsrichtung == PacmanAction.GO_EAST)
-            nachfolgerPos.set(vorgaengerPos.getX() + 1, vorgaengerPos.getY());
-        else if(bewegungsrichtung == PacmanAction.GO_SOUTH)
-            nachfolgerPos.set(vorgaengerPos.getX(), vorgaengerPos.getY() + 1);
-        else if(bewegungsrichtung == PacmanAction.GO_WEST)
-            nachfolgerPos.set(vorgaengerPos.getX() - 1, vorgaengerPos.getY());
-        else
-            throw new IllegalArgumentException("UnzulÃ¤ssige PacmanAction");
-
-        return nachfolgerPos;
-    }
-
-    /**
-     * Berechne die notwendigen actions um diesen Knoten vom Start aus zu erreichen
-     */
-	public void berechnePacmanActions() {
+	/**
+	 * Berechne die notwendigen actions um diesen Knoten vom Start aus zu erreichen
+	 */
+	public LinkedList<HunterAction> berechneHunterActions() {
 		Knoten vorgaenger = this.vorgaenger;
 		Knoten aktueller = this;
-		LinkedList<PacmanAction> list = new LinkedList<>();
-		
-		while(vorgaenger != null) {
-			if (vorgaenger.pos.getY() < aktueller.pos.getY()) {
-				//von Nord nach Sued
-				list.add(0,PacmanAction.GO_SOUTH);
-			} else if (vorgaenger.pos.getX() > aktueller.pos.getX()) {
-				//von Ost nach West
-				list.add(0,PacmanAction.GO_WEST);
-			} else if (vorgaenger.pos.getY() > aktueller.pos.getY()) {
-				//von Sued nach Nord
-				list.add(0,PacmanAction.GO_NORTH);
-			} else if (vorgaenger.pos.getX() < aktueller.pos.getX()) {
-				//von West nach Ost
-				list.add(0,PacmanAction.GO_EAST);
+		LinkedList<HunterAction> hunterActionList = new LinkedList<>();
+
+		while (vorgaenger != null) {
+			if (vorgaenger.hunterPosition.equals(aktueller.hunterPosition)) {
+				HunterAction action = this.getTurnDirection(aktueller.getHunterDirection(), vorgaenger.getHunterDirection());
+				if( action != null) {
+					hunterActionList.add(0, action);
+				}
+			} else {
+				hunterActionList.add(0, HunterAction.GO_FORWARD);
 			}
+			
 			aktueller = vorgaenger;
 			vorgaenger = vorgaenger.vorgaenger;
 		}
-		pacmanActionList.addAll(list);
+		return hunterActionList;
+	}
+
+	/**
+	 * Auf Basis von
+	 * 
+	 * @param currentDirection,
+	 * und @param previousDirection
+	 * 
+	 * berechnet die Drehungsrichtung der Hunter, also entweder TURN_LEFT oder TURN_RIGHT
+	 */
+	private HunterAction getTurnDirection(Direction currentDirection, Direction previousDirection) {
+		HunterAction action = null;
+		switch (previousDirection) {
+		case NORTH: {
+			switch (currentDirection) {
+			case NORTH:
+				// Diese Bewegung ist nicht möglich
+				throw new IllegalArgumentException("getTurnDirection: Unzulässige HunterAction");
+			case EAST:
+				action = HunterAction.TURN_RIGHT;
+				break;
+			case SOUTH:
+				// Diese Bewegung ist nicht möglich
+				throw new IllegalArgumentException("getTurnDirection: Unzulässige HunterAction");
+			case WEST:
+				action = HunterAction.TURN_LEFT;
+				break;
+			}
+		}
+			break;
+		case EAST: {
+			switch (currentDirection) {
+			case NORTH:
+				action = HunterAction.TURN_LEFT;
+				break;
+			case EAST:
+				// Diese Bewegung ist nicht möglich
+				throw new IllegalArgumentException("getTurnDirection: Unzulässige HunterAction");
+			case SOUTH:
+				action = HunterAction.TURN_RIGHT;
+				break;
+			case WEST:
+				// Diese Bewegung ist nicht möglich
+				throw new IllegalArgumentException("getTurnDirection: Unzulässige HunterAction");
+			}
+		}
+			break;
+		case SOUTH: {
+			switch (currentDirection) {
+			case NORTH:
+				// Diese Bewegung ist nicht möglich
+				throw new IllegalArgumentException("getTurnDirection: Unzulässige HunterAction");
+			case EAST:
+				action = HunterAction.TURN_LEFT;
+				break;
+			case SOUTH:
+				// Diese Bewegung ist nicht möglich
+				throw new IllegalArgumentException("getTurnDirection: Unzulässige HunterAction");
+			case WEST:
+				action = HunterAction.TURN_RIGHT;
+				break;
+			}
+		}
+			break;
+		case WEST: {
+			switch (currentDirection) {
+			case NORTH:
+				action = HunterAction.TURN_RIGHT;
+				break;
+			case EAST:
+				// Diese Bewegung ist nicht möglich
+				throw new IllegalArgumentException("getTurnDirection: Unzulässige HunterAction");
+			case SOUTH:
+				action = HunterAction.TURN_LEFT;
+				break;
+			case WEST:
+				// Diese Bewegung ist nicht möglich
+				throw new IllegalArgumentException("getTurnDirection: Unzulässige HunterAction");
+			}
+		}
+			break;
+		}
+		return action;
+	}
+	
+	public float getPfadkosten() {
+		return pfadkosten;
+	}
+
+	public void setPfadkosten(float pfadkosten) {
+		this.pfadkosten = pfadkosten;
+	}
+
+	public Knoten getVorgaenger() {
+		return vorgaenger;
+	}
+
+	public void setSchaetzwert(float schaetzwert) {
+		this.schaetzwert = schaetzwert;
+	}
+
+	public float getSchaetzwert() {
+		return this.schaetzwert;
+	}
+
+	public float getBewertung() {
+		return pfadkosten + schaetzwert;
+	}
+
+	public ArrayList<ArrayList<CellInfo>> getView() {
+		return this.view;
+	}
+	
+	public Point getPos() {
+		return hunterPosition;
+	}
+
+	public Direction getHunterDirection() {
+		return this.hunterDirection;
+	}
+	
+	public Point getHunterPosition() {
+		return hunterPosition;
+	}
+	
+	@Override
+	public String toString() {
+		String out = "";
+		out += "Knoten\n{ ";
+		out += "HunterPosition: " + this.hunterPosition + " HunterDirection : " + this.hunterDirection + " Pfadkosten: "
+				+ this.pfadkosten + " Schaetzwert: " + this.schaetzwert + " }";
+		return out;
 	}
 
 }

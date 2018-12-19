@@ -1,14 +1,15 @@
 package de.fh.uninformedSearch;
 
-import de.fh.pacman.PacmanPercept;
+import de.fh.blanks.HunterWorld;
+import de.fh.blanks.Point;
 import de.fh.suche.Knoten;
 import de.fh.suche.Suche;
 
 public abstract class UninformedSearch extends Suche {
 
 
-    public UninformedSearch(PacmanPercept pacmanPercept, Knoten zielKnoten) {
-        super(pacmanPercept, zielKnoten);
+    public UninformedSearch(HunterWorld hunterWorld, Point zielPosition) {
+        super(hunterWorld, zielPosition);
     }
 
     /**
