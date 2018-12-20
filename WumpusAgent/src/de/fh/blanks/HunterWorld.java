@@ -45,7 +45,7 @@ public class HunterWorld {
 		// Alle möglichen Serverrückmeldungen:
 		if (actionEffect == HunterActionEffect.GAME_INITIALIZED) {
 			// Erster Aufruf
-			this.add(1, 1, new CellInfo(CellType.EMPTY));
+			this.updateCell(new CellInfo(CellType.EMPTY));
 		}
 
 		if (actionEffect == HunterActionEffect.GAME_OVER) {
@@ -309,9 +309,9 @@ public class HunterWorld {
 			for (int col = 0; col < view.get(row).size(); col++) {
 				CellInfo cellInfo = get(col, row);
 				if (cellInfo != null)
-					out += cellInfo.toString() + "  ";
+					out += cellInfo.toString() + "   ";
 				else
-					out += "NULL        ";
+					out += "NULL ";
 			}
 			out += "\n";
 		}

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
- * Based on the algorithm of daniel Created on 22.09.16. Klasse fÃ¼r unsere Suchalgorithmen
+ * Based on the algorithm of daniel Created on 22.09.16. Klasse für unsere Suchalgorithmen
  */
 public class Knoten {
 
@@ -32,7 +32,7 @@ public class Knoten {
 	// allerdings ohne den Hunter (HunterPostion wird in hunterPosition gespeichert)
 	private ArrayList<ArrayList<CellInfo>> view;
 
-	// Die Felderbelegung wird zusÃ¤tzlich als Stringarray gespeichert
+	// Die Felderbelegung wird zusätzlich als Stringarray gespeichert
 	// um Knoten effizienter zu vergleichen
 	private String sView;
 

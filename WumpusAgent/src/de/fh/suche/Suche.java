@@ -124,8 +124,7 @@ public abstract class Suche {
 		// Erzeuge Nachfolgerknoten nach gewünschter Bewegungsrichtung
 		Knoten nachfolger = new Knoten(vorgaenger, hunterAction);
 
-		// Durchsuche Closelist ob es diesen Zustand (Zustand der Welt und
-		// Pacman-Position) schon mal gab
+		// Durchsuche Closelist ob es diesen Zustand (Zustand der Welt) schon mal gab
 		if (closedList.contains(nachfolger.hashCode()))
 			// Zustand ist gleich, also nicht erneut in die Openlist aufnehmen (sonst Loop!)
 			return;

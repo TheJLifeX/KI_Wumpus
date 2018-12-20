@@ -45,7 +45,7 @@ public class CellInfo
 	
     @Override
     public String toString() {
-    	if( this.type == CellType.WALL) {
+    	if( this.type != CellType.WALL) {
     		return "(" + type.name().substring(0, 2) + ")";
     	} else {
     		return "(" + type.name().substring(0, 2) + " Pp:" + this.getProbabilityPit() + " Pw:" + this.getProbabilityWumpus() + ")";

@@ -110,7 +110,7 @@ public class MyAgent extends WumpusHunterAgent {
 			world.set(3, 4, new CellInfo(CellType.BREEZE));
 			world.set(4, 4, new CellInfo(CellType.BREEZE));
 			// end Virtuelle Welt aufbauen
-			
+			world.print();
             switch (suchstrategie){
                 case TIEFENSUCHE:
                     suche = new Tiefensuche(this.world, zielPosition);
@@ -128,7 +128,7 @@ public class MyAgent extends WumpusHunterAgent {
                     suche = new AStern(this.world, zielPosition);
                     break;
             }
-            
+//            
     		hunterActionList = suche.start();
             
             moveHunter = false;
@@ -142,8 +142,7 @@ public class MyAgent extends WumpusHunterAgent {
     			}
     		}
 		}
-		
-
+	
 		return nextAction;
 	}
 }
