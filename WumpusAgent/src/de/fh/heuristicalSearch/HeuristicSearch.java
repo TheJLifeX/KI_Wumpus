@@ -1,14 +1,15 @@
 package de.fh.heuristicalSearch;
 
-import de.fh.pacman.PacmanPercept;
+import de.fh.blanks.HunterWorld;
+import de.fh.blanks.Point;
 import de.fh.suche.Knoten;
 import de.fh.suche.Suche;
 
 public abstract class HeuristicSearch extends Suche {
 
 
-    public HeuristicSearch(PacmanPercept pacmanPercept, Knoten zielKnoten) {
-        super(pacmanPercept, zielKnoten);
+    public HeuristicSearch(HunterWorld hunterWorld, Point zielPosition) {
+        super(hunterWorld, zielPosition);
     }
 
     /**

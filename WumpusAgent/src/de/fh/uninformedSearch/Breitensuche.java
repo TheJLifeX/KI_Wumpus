@@ -1,12 +1,13 @@
 package de.fh.uninformedSearch;
 
-import de.fh.pacman.PacmanPercept;
+import de.fh.blanks.HunterWorld;
+import de.fh.blanks.Point;
 import de.fh.suche.Knoten;
 
 public class Breitensuche extends UninformedSearch{
 
-    public Breitensuche(PacmanPercept pacmanPercept, Knoten zielKnoten){
-        super(pacmanPercept, zielKnoten);
+    public Breitensuche(HunterWorld hunterWorld, Point zielPosition){
+        super(hunterWorld, zielPosition);
     }
 
 
@@ -20,10 +21,8 @@ public class Breitensuche extends UninformedSearch{
     public void fuegeKnotenEin(Knoten expansionsKandidat) {
 
         // TODO Breitensuche
-
-        System.out.println("test");
-
         //Implementiert openList.add(Index,exp), mit dem richtigen Index gemäß Suchstrategie
-        openList.add(openList.size(), expansionsKandidat);
+    	
+        openList.add(expansionsKandidat);
     }
 }

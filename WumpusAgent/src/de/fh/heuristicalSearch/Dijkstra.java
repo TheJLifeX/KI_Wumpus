@@ -1,16 +1,13 @@
 package de.fh.heuristicalSearch;
 
-import de.fh.pacman.PacmanPercept;
-import de.fh.pacman.enums.PacmanTileType;
+import de.fh.blanks.HunterWorld;
+import de.fh.blanks.Point;
 import de.fh.suche.Knoten;
-import de.fh.util.Vector2;
-
-import java.util.Comparator;
 
 public class Dijkstra extends HeuristicSearch{
 
-    public Dijkstra(PacmanPercept pacmanPercept, Knoten zielKnoten){
-        super(pacmanPercept, zielKnoten);
+    public Dijkstra(HunterWorld hunterWorld, Point zielPosition){
+        super(hunterWorld, zielPosition);
     }
 
 
@@ -24,18 +21,6 @@ public class Dijkstra extends HeuristicSearch{
     public void bewerteKnoten(Knoten expansionsKandidat) {
 
         float schaetzwert = 0f, pfadkosten = 0f;
-
-        Knoten zeiger = expansionsKandidat.getVorgaenger();
-        Vector2 pos = zeiger.getPos();
-        while(zeiger != null)
-        {
-            int x = pos.getX();
-            int y = pos.getY();
-            if(zeiger.getView()[x][y] == PacmanTileType.EMPTY)
-                pfadkosten++;
-
-            zeiger = zeiger.getVorgaenger();
-        }
 
         //TODO Dijkstra
 
@@ -63,12 +48,12 @@ public class Dijkstra extends HeuristicSearch{
 
         openList.add(0, expansionsKandidat);
 
-        openList.sort(new Comparator<Knoten>() {
-            @Override
-            public int compare(Knoten o1, Knoten o2) {
-                return Float.compare(o1.getPfadkosten(), o2.getPfadkosten());
-            }
-        });
+//        openList.sort(new Comparator<Knoten>() {
+//            @Override
+//            public int compare(Knoten o1, Knoten o2) {
+//                return Float.compare(o1.getPfadkosten(), o2.getPfadkosten());
+//            }
+//        });
 
     }
 

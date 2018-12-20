@@ -5,7 +5,6 @@ package de.fh.blanks;
  */
 public enum Direction
 {
-    UNKNOWN,
     NORTH,
     EAST,
     SOUTH,
