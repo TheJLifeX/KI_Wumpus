@@ -77,7 +77,7 @@ public abstract class Suche {
 			if (expansionsKandidat.isZiel(this.zielPosition)) {
 				// Kandidat entspricht dem gewünschten Zielzustand ( also Hunter an der ZielPostion) 
 				Knoten loesungsKnoten = expansionsKandidat;
-				System.out.println("\nDie Suche war Erfolgsreich!\n");
+//				System.out.println("\nDie Suche war Erfolgsreich!\n");
 				return loesungsKnoten.berechneHunterActions();
 			} else {
 				// Ist nicht gleich dem Zielzustand, also expandiere nächsten Knoten
@@ -103,7 +103,7 @@ public abstract class Suche {
 		berechneNachfolger(vorgaenger, HunterAction.TURN_RIGHT);
 
 		if (countSysout % 100 == 0) {
-			System.out.println("o:" + openList.size() + "|" + "c:" + closedList.size());
+//			System.out.println("o:" + openList.size() + "|" + "c:" + closedList.size());
 		}
 		countSysout++;
 
@@ -113,9 +113,11 @@ public abstract class Suche {
 		// Ist die neue Postion eine Wandposition kann man sich das Erzeugen
 		// des neuen Knoten und das Prüfen ob er sich schon in der closedList enthalten
 		// ist sparen
-		if( hunterAction == HunterAction.GO_FORWARD) { // Nur wenn der Hunter vorwärts geht, kann seine Position sich verändern.
-			Point neueHunterPosition = vorgaenger.berechneNeuePosition(vorgaenger.getPos(), vorgaenger.getHunterDirection(), hunterAction);
-			
+		if (hunterAction == HunterAction.GO_FORWARD) { // Nur wenn der Hunter vorwärts geht, kann seine Position sich
+														// verändern.
+			Point neueHunterPosition = vorgaenger.berechneNeuePosition(vorgaenger.getPos(),
+					vorgaenger.getHunterDirection(), hunterAction);
+
 			CellInfo cellInfo = hunterWorld.get(neueHunterPosition.getX(), neueHunterPosition.getY());
 			if (cellInfo == null || cellInfo.getType() == CellType.WALL)
 				return;

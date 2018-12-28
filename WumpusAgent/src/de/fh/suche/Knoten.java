@@ -58,6 +58,7 @@ public class Knoten {
 
 		// Erzeuge view as String
 		// Nur relevant für die Berechung der Hashcode
+		// TODO : diese toString methode ist falsh.
 		sView = this.view.toString();
 
 	}
@@ -70,15 +71,17 @@ public class Knoten {
 		// wie TODO ID:1
 		this.view = vorgaenger.getView();
 
-		// HunterDirection der Vorgaenger, wird eventuell in der Methode berechneNeuePostion aktualisiert
+		// HunterDirection der Vorgaenger, wird eventuell in der Methode
+		// berechneNeuePostion aktualisiert
 		this.hunterDirection = vorgaenger.getHunterDirection();
-		
+
 		// Die neue Position der Hunter auf Basis der Bewegungsrichtung
 		// PS: In berechNeuePostion wird auch die neue hunterDirection berechnet.
 		this.hunterPosition = berechneNeuePosition(vorgaenger.getPos(), vorgaenger.getHunterDirection(), action);
 
 		// Erzeuge view as String
 		// Nur relevant für die Berechung der Hashcode
+		// TODO : diese toString methode ist falsch.
 		this.sView = this.view.toString();
 
 	}
