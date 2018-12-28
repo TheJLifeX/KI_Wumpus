@@ -29,15 +29,21 @@ public class Point
         return y;
     }
 
+    public void setY(int y)
+    {
+        this.y = y;
+    }
+
     public void set(int x, int y)
     {
         this.x = x;
         this.y = y;
     }
 
-    public void setY(int y)
+    public void set(Point p)
     {
-        this.y = y;
+        this.x = p.x;
+        this.y = p.y;
     }
 
     @Override

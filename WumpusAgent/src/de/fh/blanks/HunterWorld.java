@@ -189,7 +189,8 @@ public class HunterWorld {
 						this.updateCell(CellType.STENCH);
 					}
 					if (percept.isGlitter()) {
-						this.goldPosition.set(this.getHunterPosition().getX(), this.getHunterPosition().getY());
+						this.goldPosition.set(this.hunterPosition); // Kein Getter für hunterPosition nötig. Neue Point.set(Point p) Methode benutzt.
+						// this.goldPosition.set(this.getHunterPosition().getX(), this.getHunterPosition().getY());
 						this.updateCell(CellType.GOLD);
 						this.bufferActions.push(HunterAction.GRAB);
 					}
@@ -369,7 +370,7 @@ public class HunterWorld {
 	 * Aktulisiert eine Zelle, an der Stelle, wo der Hunter liegt, auf Basis von der Information,
 	 * die vom Server bekommen wurden.
 	 * 
-	 * @param cellInfo
+	 * @param cellType
 	 */
 	public void updateCell(CellType cellType) {
 		if( cellType == CellType.GOLD) {
