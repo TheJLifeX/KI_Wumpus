@@ -40,8 +40,7 @@ public class MyAgent extends WumpusHunterAgent {
 	 */
 	@Override
 	public void updateState(HunterPercept percept, HunterActionEffect actionEffect) {
-		this.hunterWorld.updateHunterPosition(nextAction);
-		this.hunterWorld.updateState(percept, actionEffect);
+		this.hunterWorld.updateState(percept, actionEffect, nextAction);
 	}
 
 	/**

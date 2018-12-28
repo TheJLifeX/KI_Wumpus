@@ -69,14 +69,15 @@ public class CellInfo
 		this.type = type;
 	}
 	
-    @Override
-    public String toString() {
-		if( this.type != CellType.WALL) {
+	@Override
+	public String toString() {
+		if (this.type != CellType.WALL) {
 			return "(" + type.name() + ")";
 		} else {
-			return "(" + type.name().substring(0, 2) + " pit:" + this.probabilityPit + " wum:" + this.probabilityWumpus + ")";
+			return "(" + type.name().substring(0, 2) + " pit:" + this.probabilityPit + " wum:" + this.probabilityWumpus
+					+ ")";
 		}
-    }
+	}
     
 	public static LinkedList<CellInfo> getWallList(){
 		return CellInfo.wallList;
