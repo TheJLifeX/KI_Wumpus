@@ -522,6 +522,11 @@ public class HunterWorld {
 
 		try {
 			CellInfo targetCell = CellInfo.getWallList().remove();
+			if(targetCell.getEstimate() >= 110) {
+				this.bufferActions.push(HunterAction.QUIT_GAME);
+				System.out.println("Ende :: sichere Welt komplett entdeckt!");
+				return;
+			}
 			Point zielPosition = targetCell.getPosition();
 			this.get(zielPosition.getX(), zielPosition.getY()).setType(CellType.TARGET);
 			Suche suche = new Breitensuche(this, zielPosition);
