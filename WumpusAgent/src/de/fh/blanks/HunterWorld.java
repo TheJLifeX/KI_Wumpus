@@ -173,7 +173,6 @@ public class HunterWorld {
 			
 			if (actionEffect == HunterActionEffect.GOLD_FOUND) {
 				// Nach HunterAction.GRAB wurde das Gold gefunden.
-//				this.updateCell(CellType.EMPTY);
 				this.goldPosition.set(-1, -1);
 			}
 			
@@ -189,8 +188,7 @@ public class HunterWorld {
 						this.updateCell(CellType.STENCH);
 					}
 					if (percept.isGlitter()) {
-						this.goldPosition.set(this.hunterPosition); // Kein Getter für hunterPosition nötig. Neue Point.set(Point p) Methode benutzt.
-						// this.goldPosition.set(this.getHunterPosition().getX(), this.getHunterPosition().getY());
+						this.goldPosition.set(this.hunterPosition);
 						this.updateCell(CellType.GOLD);
 						this.bufferActions.push(HunterAction.GRAB);
 					}
@@ -201,12 +199,12 @@ public class HunterWorld {
 		}
 		
 		if(bufferActions.isEmpty()) {
-			this.determinateNextActions();
-			System.out.println("Buffer Actions List:");
-			this.bufferActions.forEach(System.out::println);
-			System.out.println("");
-			this.print();
+			this.determinateNextActions();	
 		}
+		System.out.println("Buffer Actions List:");
+		this.bufferActions.forEach(System.out::println);
+		System.out.println("");
+		this.print();
 		this.nextAction = this.bufferActions.remove();
 		
 		// TODO Wumpus töten.
@@ -340,7 +338,7 @@ public class HunterWorld {
 	}
 
 	/**
-	 * Gibt alle Information von der HunterWorl aus der Konsole aus.
+	 * Gibt alle Information von der HunterWorld aus der Konsole aus.
 	 */
 	public void print() {
 		String out = "HUNTER_WORLD\n{ hunterPosition: " + hunterPosition + ", hunterDirection: " + hunterDirection
@@ -413,6 +411,11 @@ public class HunterWorld {
 						targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
 					} else if (cellType == CellType.STENCH) {
 						targetWall.setProbabilityWumpus(targetWall.getProbabilityWumpus() + 60.0);
+						if(targetWall.getProbabilityWumpus() >= 110) {
+							this.killPassiveWumpus(NeighborCellPosition.WEST);
+							this.set(x, y, new CellInfo(CellType.EMPTY));
+							cellType = CellType.EMPTY;
+						}
 					} else if (cellType == CellType.EMPTY) {
 						targetWall.setProbabilityPit(0.0);
 						targetWall.setProbabilityWumpus(0.0);
@@ -440,6 +443,11 @@ public class HunterWorld {
 						targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
 					} else if (cellType == CellType.STENCH) {
 						targetWall.setProbabilityWumpus(targetWall.getProbabilityWumpus() + 60.0);
+						if(targetWall.getProbabilityWumpus() >= 110) {
+							this.killPassiveWumpus(NeighborCellPosition.NORTH);
+							this.set(x, y, new CellInfo(CellType.EMPTY));
+							cellType = CellType.EMPTY;
+						}
 					} else if (cellType == CellType.EMPTY) {
 						targetWall.setProbabilityPit(0.0);
 						targetWall.setProbabilityWumpus(0.0);
@@ -467,6 +475,11 @@ public class HunterWorld {
 					targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
 				} else if (cellType == CellType.STENCH) {
 					targetWall.setProbabilityWumpus(targetWall.getProbabilityWumpus() + 60.0);
+					if(targetWall.getProbabilityWumpus() >= 110) {
+						this.killPassiveWumpus(NeighborCellPosition.EAST);
+						this.set(x, y, new CellInfo(CellType.EMPTY));
+						cellType = CellType.EMPTY;
+					}
 				} else if (cellType == CellType.EMPTY) {
 					targetWall.setProbabilityPit(0.0);
 					targetWall.setProbabilityWumpus(0.0);
@@ -493,6 +506,11 @@ public class HunterWorld {
 					targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
 				} else if (cellType == CellType.STENCH) {
 					targetWall.setProbabilityWumpus(targetWall.getProbabilityWumpus() + 60.0);
+					if(targetWall.getProbabilityWumpus() >= 110) {
+						this.killPassiveWumpus(NeighborCellPosition.SOUTH);
+						this.set(x, y, new CellInfo(CellType.EMPTY));
+						cellType = CellType.EMPTY;
+					}
 				} else if (cellType == CellType.EMPTY) {
 					targetWall.setProbabilityPit(0.0);
 					targetWall.setProbabilityWumpus(0.0);
@@ -564,5 +582,42 @@ public class HunterWorld {
 		}
 
 		this.set(newHunterPosition.getX(), newHunterPosition.getY(), null);
+	}
+	
+	private void killPassiveWumpus(NeighborCellPosition neighborCellPosition) {
+		switch (neighborCellPosition) {
+		case WEST:
+			this.bufferActions.push(HunterAction.SHOOT);
+			if (this.hunterDirection == Direction.NORTH) {
+				this.bufferActions.push(HunterAction.TURN_LEFT);
+			} else if (this.hunterDirection == Direction.SOUTH) {
+				this.bufferActions.push(HunterAction.TURN_RIGHT);
+			}
+			break;
+		case NORTH:
+			this.bufferActions.push(HunterAction.SHOOT);
+			if (this.hunterDirection == Direction.EAST) {
+				this.bufferActions.push(HunterAction.TURN_LEFT);
+			} else if (this.hunterDirection == Direction.WEST) {
+				this.bufferActions.push(HunterAction.TURN_RIGHT);
+			}
+			break;
+		case EAST:
+			this.bufferActions.push(HunterAction.SHOOT);
+			if (this.hunterDirection == Direction.NORTH) {
+				this.bufferActions.push(HunterAction.TURN_RIGHT);
+			} else if (this.hunterDirection == Direction.SOUTH) {
+				this.bufferActions.push(HunterAction.TURN_LEFT);
+			}
+			break;
+		case SOUTH:
+			this.bufferActions.push(HunterAction.SHOOT);
+			if (this.hunterDirection == Direction.WEST) {
+				this.bufferActions.push(HunterAction.TURN_LEFT);
+			} else if (this.hunterDirection == Direction.EAST) {
+				this.bufferActions.push(HunterAction.TURN_RIGHT);
+			}
+			break;
+		}
 	}
 }

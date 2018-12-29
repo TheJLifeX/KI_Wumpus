@@ -6,8 +6,6 @@ import de.fh.wumpus.HunterPercept;
 import de.fh.wumpus.enums.HunterAction;
 import de.fh.wumpus.enums.HunterActionEffect;
 
-/* Test */
-
 /*
  * DIESE KLASSE VERÄNDERN SIE BITTE NUR AN DEN GEKENNZEICHNETEN STELLEN
  * wenn die Bonusaufgabe bewertet werden soll.
