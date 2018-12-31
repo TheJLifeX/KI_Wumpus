@@ -7,7 +7,7 @@ import de.fh.wumpus.enums.HunterAction;
 import de.fh.wumpus.enums.HunterActionEffect;
 
 /*
- * DIESE KLASSE VERÃ„NDERN SIE BITTE NUR AN DEN GEKENNZEICHNETEN STELLEN
+ * DIESE KLASSE VERÄNDERN SIE BITTE NUR AN DEN GEKENNZEICHNETEN STELLEN
  * wenn die Bonusaufgabe bewertet werden soll.
  */
 public class MyAgent extends WumpusHunterAgent {
@@ -21,12 +21,11 @@ public class MyAgent extends WumpusHunterAgent {
 	}
 
 	public MyAgent(String name) {
-
 		super(name);
 	}
 
 	/**
-	 * In dieser Methode kann das Wissen Ã¼ber die Welt (der State, der Zustand)
+	 * In dieser Methode kann das Wissen Über die Welt (der State, der Zustand)
 	 * entsprechend der aktuellen Wahrnehmungen anpasst, und die "interne Welt",
 	 * die Wissensbasis, des Agenten kontinuierlich ausgebaut werden.
 	 *
@@ -34,7 +33,7 @@ public class MyAgent extends WumpusHunterAgent {
 	 * bevor die action()-Methode aufgerufen wird...
 	 *
 	 * @param percept Aktuelle Wahrnehmung
-	 * @param actionEffect Reaktion des Servers auf vorhergewÃ¤hlte Aktion
+	 * @param actionEffect Reaktion des Servers auf vorhergewählte Aktion
 	 */
 	@Override
 	public void updateState(HunterPercept percept, HunterActionEffect actionEffect) {
@@ -56,7 +55,8 @@ public class MyAgent extends WumpusHunterAgent {
 	@Override
 	public HunterAction action() {
 
-		/*HunterAction
+		/*
+		HunterAction
         Mögliche HunterActions sind möglich:
 
        	HunterAction.GO_FORWARD
