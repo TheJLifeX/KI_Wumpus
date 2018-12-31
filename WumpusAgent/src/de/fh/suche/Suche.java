@@ -46,10 +46,9 @@ public abstract class Suche {
 	}
 
 	/**
-	 * Ist die Suche fündig geworden, gibt die start-Methode die Liste von HunterActions
-	 *  zurück,um vom Startposition der Hunter bis zur gewünschter zielPostion zu gehen.  
-	 *
-	 * @return 
+	 * Starte die Suche.   
+	 * @return die Liste von HunterActions,um vom Startposition der Hunter bis zur gewünschter 
+	 * zielPostion zu gehen.
 	 */
 	public LinkedList<HunterAction> start() {
 		// Baue den Baum gemäß gewünschter Suche auf
@@ -119,7 +118,7 @@ public abstract class Suche {
 					vorgaenger.getHunterDirection(), hunterAction);
 
 			CellInfo cellInfo = hunterWorld.get(neueHunterPosition.getX(), neueHunterPosition.getY());
-			if (cellInfo == null || cellInfo.getType() == CellType.WALL)
+			if (cellInfo == null || cellInfo.getType() == CellType.WALL || cellInfo.getType() == CellType.STENCH)
 				return;
 		}
 
