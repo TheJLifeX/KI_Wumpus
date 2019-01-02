@@ -39,7 +39,7 @@ public class HunterWorld {
     // Ein Boolean, ist entweder null (noch keine Information), true (der Wumpus ist passiv) oder false (der Wumpus ist aktiv)
 	private Boolean wumpusIsPassive;
 	// Wird benutzt um zu gucken ob sich die Intensitaet des Geruchs aendert, um dann zu entscheiden um welchen Wumpus es sich handelt
-	private int oldStenchIntensity;
+	private Integer oldStenchIntensity;
 
 
 	/**
@@ -51,7 +51,9 @@ public class HunterWorld {
 	public HunterWorld() {
 		view = new ArrayList<ArrayList<CellInfo>>();
 		wumpusIsPassive = null;
+		oldStenchIntensity = null;
 		doSit = false;
+		sitCounter = 0;
 	}
 
 	/**Hier wird nur:
@@ -87,22 +89,32 @@ public class HunterWorld {
 		// Alle m�glichen Serverr�ckmeldungen:
 		if(wumpusIsPassive == null){
 			stenchRadar = this.percept.getWumpusStenchRadar();
-			Integer stenchIntensity = stenchRadar.get(0);
-			// Anzahl an Zuegen die der Hunter wartet um zu entscheiden um welchen Wumpus es sich handelt
-			sitCounter = 5;
+			Integer stenchIntensity = null;
+			if(!stenchRadar.values().isEmpty())
+				stenchIntensity = (Integer) stenchRadar.values().toArray()[0];
+
+			if(sitCounter > 0)
+				--sitCounter;
+
+			// Prueft ob sich die intensitaet veraendert, wenn ja ist der Wumpus aktiv, sonst passiv
+			if(oldStenchIntensity != null && oldStenchIntensity.intValue() != stenchIntensity.intValue())
+				wumpusIsPassive = false;
+			else if(oldStenchIntensity != null && sitCounter == 0)
+				wumpusIsPassive = true;
 
 			if(!doSit && stenchIntensity != null){
+				// Anzahl an Zuegen die der Hunter wartet um zu entscheiden um welchen Wumpus es sich handelt
+				sitCounter = 5;
+				// Wir legen einmal die alte Intensitaet fest und gucken sich diese mit der neuen unterscheidet
 				oldStenchIntensity = stenchIntensity;
+				// Der Hunter soll nichts tun um zu entscheiden um welchen Wumpus es sich handelt
 				doSit = true;
 			}
-
-			if(stenchIntensity != null && oldStenchIntensity != stenchIntensity){
-			    wumpusIsPassive = false;
-				doSit = false;
-			}else{
-				wumpusIsPassive = true;
-			}
+		}else{
+			doSit = false;
 		}
+
+
 		System.out.println("!!!Wumpus-Art!!! : " + wumpusIsPassive);
 
 		if (actionEffect == HunterActionEffect.BUMPED_INTO_WALL) {
@@ -187,10 +199,11 @@ public class HunterWorld {
 	 * Gibt die n�chste Action, die vom Hunter augef�hrt werden soll.
 	 */
 	public HunterAction action() {
-		if(doSit){
-			--sitCounter;
+		System.out.println("Sit?????????????: " + doSit);
+		if(doSit && sitCounter > 0){
 			bufferActions.push(HunterAction.SIT);
 		}
+
 		if(bufferActions.isEmpty()) {
 			this.exploreWorld();
 			System.out.println("Buffer Actions List:");
