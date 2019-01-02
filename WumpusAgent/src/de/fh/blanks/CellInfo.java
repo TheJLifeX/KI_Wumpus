@@ -11,7 +11,7 @@ public class CellInfo
     private double probabilityWumpus;
     
     /**
-     * Hier sind alle noch unbekannte Zelle gespeichert, die rund um den bekannnten Welt liegen.
+     * Hier sind alle noch unbekannte Zelle gespeichert, die rund um die bekannte Welt liegen.
      */
 	private static LinkedList<CellInfo> wallList = new LinkedList<>();
 
@@ -25,11 +25,12 @@ public class CellInfo
      * Hier wird auch alle CellInfo von Typ WALL in einer wallList gespeichert.
      * Die Koordinaten x und y werden genutzt um ein "Wall" Zelle als target zu sezten, und dorthin gehen.
      */
-	public CellInfo(int x, int y, double probabilityPit, double probabilityWumpus) {
-		this.type = CellType.WALL;
-		this.position = new Point(x, y);
-		this.probabilityPit = probabilityPit;
-		this.probabilityWumpus = probabilityWumpus;
+	public CellInfo(int x, int y, double probabilityPit, double probabilityWumpus) 
+	{
+		type = CellType.WALL;
+		position = new Point(x, y);
+		probabilityPit = probabilityPit;
+		probabilityWumpus = probabilityWumpus;
 		CellInfo.wallList.add(this);
 	}
 

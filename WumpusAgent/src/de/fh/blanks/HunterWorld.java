@@ -221,7 +221,7 @@ public class HunterWorld {
 		 */
 
 		// Beispiel:
-		stenchRadar = this.percept.getWumpusStenchRadar();
+		stenchRadar = percept.getWumpusStenchRadar();
 
 		// Gebe alle riechbaren Wumpis aus
 //		System.out.println("WumpusID: Intensitaet");
@@ -236,20 +236,22 @@ public class HunterWorld {
 	/**
 	 * Gibt die nächste Action, die vom Hunter augeführt werden soll.
 	 */
-	public HunterAction getNextAction() {
-		return this.nextAction;
+	public HunterAction getNextAction() 
+	{
+		return nextAction;
 	}
 
 	/**
 	 * Gibt das Element von der gewünschte Postion, sonst null wenn das Element nicht existiert.
 	 */
-	public CellInfo get(int x, int y) {
-		if (x < 0 || y < 0) {
+	public CellInfo get(int x, int y) 
+	{
+		if (x < 0 || y < 0)
 			return null;
-		}
 
-		try {
-			ArrayList<CellInfo> row = this.view.get(y);
+		try 
+		{
+			ArrayList<CellInfo> row = view.get(y);
 			CellInfo cellInfo = row.get(x);
 			return cellInfo;
 
@@ -265,19 +267,22 @@ public class HunterWorld {
 	 *  
 	 * @return das vorherige Element, wenn ein Element aktualisiert wurde oder null falls kein Element aktualisiert wurde. 
 	 */
-	public CellInfo set(int x, int y, CellInfo newCellInfo) {
-		if (x < 0 || y < 0) {
+	public CellInfo set(int x, int y, CellInfo newCellInfo) 
+	{
+		if (x < 0 || y < 0) 
+		{
 			throw new IllegalArgumentException("SET: Unzulässige Koordinaten " + "(" + x + ", " + y + ")" + "\n"
 					+ "x und y Koodirnaten müssen größer gleich 0 sein.");
 		}
 
-		try {
-			ArrayList<CellInfo> row = this.view.get(y);
+		try 
+		{
+			ArrayList<CellInfo> row = view.get(y);
 			CellInfo previousCellInfo = row.set(x, newCellInfo);
 			return previousCellInfo;
 
 		} catch (IndexOutOfBoundsException e) {
-			this.add(x, y, newCellInfo);
+			add(x, y, newCellInfo);
 			return null;
 		}
 	}
@@ -397,115 +402,135 @@ public class HunterWorld {
 	}
 	
 	/**
-	 * Aktulisiert bzw. setzt passende CellInfo von Typ Wall rund um den Aktuelle Position der Hunter.
+	 * Aktualisiert bzw. setzt passende CellInfo von Typ Wall rund um die aktuelle Position des Hunter.
+	 * Aktualisiere Informationen der Zellen rund um den Hunter anhand übergebenem CellType.
 	 * 
 	 * @param cellType
 	 */
-	private void setProbabilityAllAroundCell(CellType cellType) {
+	private void setProbabilityAllAroundCell(CellType cellType) 
+	{	
 		// WEST
 		{
-			int x = this.hunterPosition.getX() - 1;
-			int y = this.hunterPosition.getY();
-			if (x > 0) {
-				CellInfo targetWall = this.get(x, y);
-				if (targetWall != null) {
-					if (cellType == CellType.BREEZE) {
+			int x = hunterPosition.getX() - 1;
+			int y = hunterPosition.getY();
+
+			if (x > 0) 
+			{
+				CellInfo targetWall = get(x, y);
+
+				if (targetWall != null) 
+				{
+					if (cellType == CellType.BREEZE) 
 						targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
-					} else if (cellType == CellType.STENCH) {
+					else if (cellType == CellType.STENCH)
 						targetWall.setProbabilityWumpus(targetWall.getProbabilityWumpus() + 60.0);
-					} else if (cellType == CellType.EMPTY) {
+					else if (cellType == CellType.EMPTY) 
+					{
 						targetWall.setProbabilityPit(0.0);
 						targetWall.setProbabilityWumpus(0.0);
 					}
-				} else {
-					if (cellType == CellType.BREEZE) {
-						this.set(x, y, new CellInfo(x, y, 50.0, 0.0));
-					} else if (cellType == CellType.STENCH) {
-						this.set(x, y, new CellInfo(x, y, 0.0, 50.0));
-					} else if (cellType == CellType.EMPTY) {
-						this.set(x, y, new CellInfo(x, y, 0.0, 0.0));
-					}
+				} 
+				else 
+				{
+					if (cellType == CellType.BREEZE)
+						set(x, y, new CellInfo(x, y, 50.0, 0.0));
+					else if (cellType == CellType.STENCH)
+						set(x, y, new CellInfo(x, y, 0.0, 50.0));
+					else if (cellType == CellType.EMPTY)
+						set(x, y, new CellInfo(x, y, 0.0, 0.0));
 				}
 			}
 		}
 
 		// NORTH
 		{
-			int x = this.hunterPosition.getX();
-			int y = this.hunterPosition.getY() - 1;
-			if (y > 0) {
-				CellInfo targetWall = this.get(x, y);
-				if (targetWall != null) {
-					if (cellType == CellType.BREEZE) {
+			int x = hunterPosition.getX();
+			int y = hunterPosition.getY() - 1;
+
+			if (y > 0) 
+			{
+				CellInfo targetWall = get(x, y);
+				if (targetWall != null) 
+				{
+					if (cellType == CellType.BREEZE)
 						targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
-					} else if (cellType == CellType.STENCH) {
+					else if (cellType == CellType.STENCH)
 						targetWall.setProbabilityWumpus(targetWall.getProbabilityWumpus() + 60.0);
-					} else if (cellType == CellType.EMPTY) {
+					else if (cellType == CellType.EMPTY) 
+					{
 						targetWall.setProbabilityPit(0.0);
 						targetWall.setProbabilityWumpus(0.0);
 					}
 
-				} else {
-					if (cellType == CellType.BREEZE) {
-						this.set(x, y, new CellInfo(x, y, 50.0, 0.0));
-					} else if (cellType == CellType.STENCH) {
-						this.set(x, y, new CellInfo(x, y, 0.0, 50.0));
-					} else if (cellType == CellType.EMPTY) {
-						this.set(x, y, new CellInfo(x, y, 0.0, 0.0));
-					}
+				} 
+				else 
+				{
+					if (cellType == CellType.BREEZE)
+						set(x, y, new CellInfo(x, y, 50.0, 0.0));
+					else if (cellType == CellType.STENCH)
+						set(x, y, new CellInfo(x, y, 0.0, 50.0));
+					else if (cellType == CellType.EMPTY)
+						set(x, y, new CellInfo(x, y, 0.0, 0.0));
 				}
 			}
 		}
 
 		// EAST
 		{
-			int x = this.hunterPosition.getX() + 1;
-			int y = this.hunterPosition.getY();
-			CellInfo targetWall = this.get(x, y);
-			if (targetWall != null) {
-				if (cellType == CellType.BREEZE) {
+			int x = hunterPosition.getX() + 1;
+			int y = hunterPosition.getY();
+			CellInfo targetWall = get(x, y);
+			if (targetWall != null) 
+			{
+				if (cellType == CellType.BREEZE) 
 					targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
-				} else if (cellType == CellType.STENCH) {
+				else if (cellType == CellType.STENCH)
 					targetWall.setProbabilityWumpus(targetWall.getProbabilityWumpus() + 60.0);
-				} else if (cellType == CellType.EMPTY) {
+				else if (cellType == CellType.EMPTY) 
+				{
 					targetWall.setProbabilityPit(0.0);
 					targetWall.setProbabilityWumpus(0.0);
 				}
 
-			} else {
-				if (cellType == CellType.BREEZE) {
-					this.set(x, y, new CellInfo(x, y, 50.0, 0.0));
-				} else if (cellType == CellType.STENCH) {
-					this.set(x, y, new CellInfo(x, y, 0.0, 50.0));
-				} else if (cellType == CellType.EMPTY) {
-					this.set(x, y, new CellInfo(x, y, 0.0, 0.0));
-				}
+			} 
+			else 
+			{
+				if (cellType == CellType.BREEZE)
+					set(x, y, new CellInfo(x, y, 50.0, 0.0));
+				else if (cellType == CellType.STENCH)
+					set(x, y, new CellInfo(x, y, 0.0, 50.0));
+				else if (cellType == CellType.EMPTY)
+					set(x, y, new CellInfo(x, y, 0.0, 0.0));
 			}
 		}
 
 		// SOUTH
 		{
-			int x = this.hunterPosition.getX();
-			int y = this.hunterPosition.getY() + 1;
-			CellInfo targetWall = this.get(x, y);
-			if (targetWall != null) {
-				if (cellType == CellType.BREEZE) {
+			int x = hunterPosition.getX();
+			int y = hunterPosition.getY() + 1;
+
+			CellInfo targetWall = get(x, y);
+			if (targetWall != null) 
+			{
+				if (cellType == CellType.BREEZE)
 					targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
-				} else if (cellType == CellType.STENCH) {
+				else if (cellType == CellType.STENCH)
 					targetWall.setProbabilityWumpus(targetWall.getProbabilityWumpus() + 60.0);
-				} else if (cellType == CellType.EMPTY) {
+				else if (cellType == CellType.EMPTY) 
+				{
 					targetWall.setProbabilityPit(0.0);
 					targetWall.setProbabilityWumpus(0.0);
 				}
 
-			} else {
-				if (cellType == CellType.BREEZE) {
-					this.set(x, y, new CellInfo(x, y, 50.0, 0.0));
-				} else if (cellType == CellType.STENCH) {
-					this.set(x, y, new CellInfo(x, y, 0.0, 50.0));
-				} else if (cellType == CellType.EMPTY) {
-					this.set(x, y, new CellInfo(x, y, 0.0, 0.0));
-				}
+			} 
+			else 
+			{
+				if (cellType == CellType.BREEZE)
+					set(x, y, new CellInfo(x, y, 50.0, 0.0));
+				else if (cellType == CellType.STENCH)
+					set(x, y, new CellInfo(x, y, 0.0, 50.0));
+				else if (cellType == CellType.EMPTY)
+					set(x, y, new CellInfo(x, y, 0.0, 0.0));
 			}
 		}
 		
