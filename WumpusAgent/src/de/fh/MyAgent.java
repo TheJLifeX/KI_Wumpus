@@ -40,6 +40,8 @@ public class MyAgent extends WumpusHunterAgent {
 	 */
 	@Override
 	public void updateState(HunterPercept percept, HunterActionEffect actionEffect) {
+		// nextAction ist hier die previousAction da diese zum Zeitpunkt des Aufrufs von updateState(...) schon
+		// ausgefuehrt wurde
 		this.hunterWorld.updateState(percept, actionEffect, nextAction);
 	}
 
@@ -70,7 +72,7 @@ public class MyAgent extends WumpusHunterAgent {
 		HunterAction.QUIT_GAME
 		*/
 		
-		nextAction = this.hunterWorld.getNextAction();
+		nextAction = hunterWorld.action();
 		
 		return nextAction;
 	}
