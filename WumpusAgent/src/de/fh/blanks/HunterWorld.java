@@ -102,7 +102,7 @@ public class HunterWorld {
 				--sitCounter;
 
 			// Prueft ob sich die intensitaet veraendert, wenn ja ist der Wumpus aktiv, sonst passiv
-			if(stenchIntensity == null || (oldStenchIntensity != null && oldStenchIntensity.intValue() != stenchIntensity.intValue()))
+			if( oldStenchIntensity != null && (stenchIntensity == null || oldStenchIntensity.intValue() != stenchIntensity.intValue()))
 				wumpusIsPassive = false;
 			else if(oldStenchIntensity != null && sitCounter == 0)
 				wumpusIsPassive = true;
@@ -206,6 +206,33 @@ public class HunterWorld {
 	}
 
 	/**
+	 * Passive Strategy to kill a passive Wumpus.
+	 */
+	public void passive_killPassiveWumpus()
+	{
+		// Wir konnten feststellen, dass der Wumpus passiv ist => Auf Distanz 1 gehen. Wumpus töten
+		if (wumpusIsPassive != null && wumpusAlive && wumpusAlive)
+		{
+			Integer intensitaet = null;
+			if(!stenchRadar.isEmpty())
+				intensitaet = (Integer) stenchRadar.values().toArray()[0];
+
+			if (percept.isScream())
+				wumpusAlive = false;
+
+			else if ( intensitaet != null && intensitaet == 1)
+			{
+				if (previousAction == HunterAction.SHOOT)
+					bufferActions.push(HunterAction.TURN_RIGHT);
+				else
+					bufferActions.push(HunterAction.SHOOT);
+			}
+
+			// TODO: In alle Richtungen schießen.
+		}
+	}
+
+	/**
 	 * Gibt die n�chste Action, die vom Hunter augef�hrt werden soll.
 	 */
 	public HunterAction action() {
@@ -213,6 +240,8 @@ public class HunterWorld {
 		if(doSit && sitCounter > 0){
 			bufferActions.push(HunterAction.SIT);
 		}
+
+		passive_killPassiveWumpus();
 
 		if(bufferActions.isEmpty()) {
 			this.exploreWorld();
@@ -223,6 +252,7 @@ public class HunterWorld {
 		}
 
 		nextAction = this.bufferActions.remove();
+		return nextAction;
 
 /*		if (actionEffect == HunterActionEffect.GAME_OVER) {
 			// Das Spiel ist verloren
@@ -236,7 +266,6 @@ public class HunterWorld {
 		if (actionEffect == HunterActionEffect.NO_MORE_SHOOTS) {
 			// TODO A* bis zur Position (1, 1) ( einfach schon implementierte Suchstrategie anwenden)
 		}*/
-		return nextAction;
 	}
 
 	/**
