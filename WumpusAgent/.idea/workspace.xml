@@ -2,10 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="09da8393-9718-4db8-a7d5-ba62bfa55d45" name="Default Changelist" comment="Added a few CellTypes, Direction for Hunter(Wumpus?), Point class for 2d-Position, Methods for processing HunterPercepts and HunterActions in HunterWorld">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/de/fh/MyAgent.class" beforeDir="false" afterPath="$PROJECT_DIR$/bin/de/fh/MyAgent.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/levelReset.bak" beforeDir="false" afterPath="$PROJECT_DIR$/levelReset.bak" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/de/fh/blanks/HunterWorld.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/de/fh/blanks/HunterWorld.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/bin/" />
@@ -58,8 +54,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/de/fh/blanks/HunterWorld.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="578">
-              <caret line="42" lean-forward="true" selection-start-line="42" selection-end-line="42" />
+            <state relative-caret-position="232">
+              <caret line="104" column="42" selection-start-line="104" selection-start-column="42" selection-end-line="104" selection-end-column="42" />
               <folding>
                 <element signature="e#7934#7935#0" expanded="true" />
                 <element signature="e#7963#7964#0" expanded="true" />
@@ -160,7 +156,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds">
     <option name="x" value="-10" />
     <option name="width" value="1642" />
     <option name="height" value="2172" />
@@ -337,7 +333,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="22134000" />
+    <option name="totallyTimeSpent" value="22457000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-6" y="-6" width="1633" height="1093" extended-state="6" />
@@ -517,8 +513,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/de/fh/blanks/HunterWorld.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="578">
-          <caret line="42" lean-forward="true" selection-start-line="42" selection-end-line="42" />
+        <state relative-caret-position="232">
+          <caret line="104" column="42" selection-start-line="104" selection-start-column="42" selection-end-line="104" selection-end-column="42" />
           <folding>
             <element signature="e#7934#7935#0" expanded="true" />
             <element signature="e#7963#7964#0" expanded="true" />
