@@ -15,6 +15,7 @@ public class HunterWorld {
 
 //	private HunterPercept previousPercept; Diese Variable wird eventuell später benutzt werden.
 	private HunterAction previousAction;
+	private HunterActionEffect actionEffect;
 	private HunterAction nextAction = HunterAction.GO_FORWARD;
 //	private HunterActionEffect previousActionEffect; Diese Variable wird eventuell später benutzt werden.
 	private HunterPercept percept;
@@ -46,73 +47,7 @@ public class HunterWorld {
 	 * 
 	 * @param previousAction : entpricht letzte Action, die auf dem Server ausgeführt wurde.
 	 */
-	private void updateHunterPosition(HunterAction previousAction) {
-		this.previousAction = previousAction;
-		
-		switch (previousAction) {
-		case TURN_LEFT: {
-			switch (hunterDirection) {
-			case NORTH:
-				this.hunterDirection = Direction.WEST;
-				break;
-			case EAST:
-				this.hunterDirection = Direction.NORTH;
-				break;
-			case SOUTH:
-				this.hunterDirection = Direction.EAST;
-				break;
-			case WEST:
-				this.hunterDirection = Direction.SOUTH;
-				break;
-			default:
-				throw new IllegalArgumentException("Unzulässige HunterAction");
-			}
-			break;
-		}
-		case TURN_RIGHT: {
-			switch (hunterDirection) {
-			case NORTH:
-				this.hunterDirection = Direction.EAST;
-				break;
-			case EAST:
-				this.hunterDirection = Direction.SOUTH;
-				break;
-			case SOUTH:
-				this.hunterDirection = Direction.WEST;
-				break;
-			case WEST:
-				this.hunterDirection = Direction.NORTH;
-				break;
-			default:
-				throw new IllegalArgumentException("Unzulässige HunterAction");
-			}
-			break;
-		}
-		case GO_FORWARD: {
-			switch (this.hunterDirection) {
-			case NORTH:
-				this.hunterPosition.setY(this.hunterPosition.getY() - 1);
-				break;
-			case EAST:
-				this.hunterPosition.setX(this.hunterPosition.getX() + 1);
-				break;
-			case SOUTH:
-				this.hunterPosition.setY(this.hunterPosition.getY() + 1);
-				break;
-			case WEST:
-				this.hunterPosition.setX(this.hunterPosition.getX() - 1);
-				break;
-			default:
-				throw new IllegalArgumentException("Unzulässige HunterAction");
-			}
-			break;
-		}
-		default:
-			// Hier soll nichts gemacht werden
-			break;
-		}
-	}
-	
+
 	/**
 	 * Wichtig zu verstehen: Die updateState Methode wird zuerst ausgeführt, dann
 	 * die action Methode.
@@ -129,16 +64,12 @@ public class HunterWorld {
 		 * weniger Mapinformationen.
 		 */
 		this.percept = percept;
+		this.actionEffect = actionEffect;
 
 		// Aktuelle Reaktion des Server auf die letzte Übermittelte Action.
 
 		// Alle möglichen Serverrückmeldungen:
 
-		if (actionEffect == HunterActionEffect.GAME_OVER) {
-			// Das Spiel ist verloren
-			// TODO : Ausgabe von allen gefragete Information von der Aufgabestellung.
-			this.nextAction = HunterAction.QUIT_GAME;
-		}
 
 		if (actionEffect == HunterActionEffect.BUMPED_INTO_WALL) {
 			this.setWallInToView(this.hunterPosition, this.hunterDirection);
@@ -149,13 +80,6 @@ public class HunterWorld {
 			// Letzte Bewegungsaktion war ein Zusammenstoß einem weiteren Hunter
 		}
 
-		if (actionEffect == HunterActionEffect.WUMPUS_KILLED) {
-			this.wumpusAlive = false;
-		}
-
-		if (actionEffect == HunterActionEffect.NO_MORE_SHOOTS) {
-			// TODO A* bis zur Position (1, 1) ( einfach schon implementierte Suchstrategie anwenden)
-		}
 
 		/*
 		 * Mögliche Percepts Über die Welt erhält der Wumpushunter:
@@ -168,7 +92,7 @@ public class HunterWorld {
 		if (actionEffect == HunterActionEffect.MOVEMENT_SUCCESSFUL || actionEffect == HunterActionEffect.GAME_INITIALIZED || actionEffect == HunterActionEffect.GOLD_FOUND) {
 			
 			// wenn Letzte Bewegungsaktion war gültig, dann update HunterPosition.
-			this.updateHunterPosition(previousAction);
+			updateHunterPosition(previousAction);
 			
 			
 			if (actionEffect == HunterActionEffect.GOLD_FOUND) {
@@ -200,15 +124,7 @@ public class HunterWorld {
 			}
 		}
 		
-		if(bufferActions.isEmpty()) {
-			this.determinateNextActions();
-			System.out.println("Buffer Actions List:");
-			this.bufferActions.forEach(System.out::println);
-			System.out.println("");
-			this.print();
-		}
-		this.nextAction = this.bufferActions.remove();
-		
+
 		// TODO Wumpus töten.
 		// Also 1* Erkennen mit höheren Wahrscheinlichkeit, wo der Wumpus ist.
 		//      2* Actions festlegen um ihn zu töten (also in der bufferActions pushen).
@@ -236,8 +152,30 @@ public class HunterWorld {
 	/**
 	 * Gibt die nächste Action, die vom Hunter augeführt werden soll.
 	 */
-	public HunterAction getNextAction() {
-		return this.nextAction;
+	public HunterAction action() {
+
+		if(bufferActions.isEmpty()) {
+			this.exploreWorld();
+			System.out.println("Buffer Actions List:");
+			this.bufferActions.forEach(System.out::println);
+			System.out.println("");
+			this.print();
+		}
+		nextAction = this.bufferActions.remove();
+
+		if (actionEffect == HunterActionEffect.GAME_OVER) {
+			// Das Spiel ist verloren
+			// TODO : Ausgabe von allen gefragete Information von der Aufgabestellung.
+			this.nextAction = HunterAction.QUIT_GAME;
+		}
+		if (this.actionEffect == HunterActionEffect.WUMPUS_KILLED) {
+			this.wumpusAlive = false;
+		}
+
+		if (actionEffect == HunterActionEffect.NO_MORE_SHOOTS) {
+			// TODO A* bis zur Position (1, 1) ( einfach schon implementierte Suchstrategie anwenden)
+		}
+		return nextAction;
 	}
 
 	/**
@@ -258,109 +196,6 @@ public class HunterWorld {
 		}
 	}
 
-
-	/**
-	 * Fügt ein Element ein Element an der gewünschte Postion ein, oder aktualisiert ihn, wenn er schon
-	 * vorhanden ist
-	 *  
-	 * @return das vorherige Element, wenn ein Element aktualisiert wurde oder null falls kein Element aktualisiert wurde. 
-	 */
-	public CellInfo set(int x, int y, CellInfo newCellInfo) {
-		if (x < 0 || y < 0) {
-			throw new IllegalArgumentException("SET: Unzulässige Koordinaten " + "(" + x + ", " + y + ")" + "\n"
-					+ "x und y Koodirnaten müssen größer gleich 0 sein.");
-		}
-
-		try {
-			ArrayList<CellInfo> row = this.view.get(y);
-			CellInfo previousCellInfo = row.set(x, newCellInfo);
-			return previousCellInfo;
-
-		} catch (IndexOutOfBoundsException e) {
-			this.add(x, y, newCellInfo);
-			return null;
-		}
-	}
-
-	/**
-	 * Fügt ein Element an der gewünschte Postion ein
-	 * 
-	 * Wird nur in der Set Methode genutzt.
-	 */
-	private boolean add(int x, int y, CellInfo newCellInfo) {
-		if (x < 0 || y < 0) {
-			return false;
-		}
-
-		try {
-			if (y >= this.view.size()) {
-
-				ArrayList<CellInfo> newRow = null;
-				for (int j = this.view.size(); j <= y; j++) {
-					newRow = new ArrayList<CellInfo>();
-					this.view.add(newRow);
-					for (int k = 0; k < x; k++) {
-						newRow.add(null);
-					}
-				}
-				newRow.add(newCellInfo);
-			} else {
-
-				ArrayList<CellInfo> row = this.view.get(y);
-				if (x >= row.size()) {
-					for (int i = row.size(); i < x; i++) {
-						row.add(null);
-					}
-					row.add(newCellInfo);
-				} else {
-					this.set(x, y, newCellInfo);
-				}
-			}
-		} catch (IndexOutOfBoundsException e) {
-			return false;
-		}
-		return true;
-	}
-
-	// TODO diese toString wird nie aufgerufen. Bitte die entsprechen Stelle in der Knoten Klasse anpassen.
-	@Override
-	public String toString() {
-		String s = "";
-		for (int row = 0; row < this.view.size(); row++) {
-			for (int col = 0; col < this.view.get(row).size(); col++) {
-				final CellInfo cellInfo = this.get(col, row);
-				if (cellInfo != null) {
-					s += cellInfo.getType().toString().substring(0, 2);
-				} else {
-					s += "NULL";
-				}
-			}
-		}
-		return s;
-	}
-
-	/**
-	 * Gibt alle Information von der HunterWorl aus der Konsole aus.
-	 */
-	public void print() {
-		String out = "HUNTER_WORLD\n{ hunterPosition: " + hunterPosition + ", hunterDirection: " + hunterDirection
-				+ ", goldPosition: " + goldPosition + ", hasGold: " + hasGold + ", numArrows: " + numArrows
-				+ ", wumpusAlive: " + wumpusAlive + " }\n";
-
-		int rows = view.size();
-		for (int row = 0; row < rows; row++) {
-			for (int col = 0; col < view.get(row).size(); col++) {
-				CellInfo cellInfo = get(col, row);
-				if (cellInfo != null)
-					out += cellInfo.toString() + new String(new char[25 - cellInfo.toString().length()]).replace('\0', ' ');
-				else
-					out += "NULL" + new String(new char[25 - 4]).replace('\0', ' ');;
-			}
-			out += "\n";
-		}
-
-		System.out.println(out);
-	}
 
 	public Direction getHunterDirection() {
 		return hunterDirection;
@@ -508,7 +343,7 @@ public class HunterWorld {
 				}
 			}
 		}
-		
+
 		/**
 		 * Nach alle Anderung hier wird die wallList noch sortiert damit die am wenigsten gefährliche "Wall"
 		 * am Anfang der Liste stehen.
@@ -519,10 +354,10 @@ public class HunterWorld {
 	/**
 	 * Bestimmt die nächsten Actions und speichert die in der bufferActions list.
 	 */
-	public void determinateNextActions() {
+	public void exploreWorld() {
 
 		try {
-			CellInfo targetCell = CellInfo.getWallList().remove();
+			CellInfo targetCell = CellInfo.getUnknownCells().remove();
 			if(targetCell.getEstimate() >= 110) {
 				this.bufferActions.push(HunterAction.QUIT_GAME);
 				System.out.println("Ende :: sichere Welt komplett entdeckt!");
@@ -565,4 +400,174 @@ public class HunterWorld {
 
 		this.set(newHunterPosition.getX(), newHunterPosition.getY(), null);
 	}
+	private void updateHunterPosition(HunterAction previousAction) {
+		this.previousAction = previousAction;
+
+		switch (previousAction) {
+			case TURN_LEFT: {
+				switch (hunterDirection) {
+					case NORTH:
+						this.hunterDirection = Direction.WEST;
+						break;
+					case EAST:
+						this.hunterDirection = Direction.NORTH;
+						break;
+					case SOUTH:
+						this.hunterDirection = Direction.EAST;
+						break;
+					case WEST:
+						this.hunterDirection = Direction.SOUTH;
+						break;
+					default:
+						throw new IllegalArgumentException("Unzulässige HunterAction");
+				}
+				break;
+			}
+			case TURN_RIGHT: {
+				switch (hunterDirection) {
+					case NORTH:
+						this.hunterDirection = Direction.EAST;
+						break;
+					case EAST:
+						this.hunterDirection = Direction.SOUTH;
+						break;
+					case SOUTH:
+						this.hunterDirection = Direction.WEST;
+						break;
+					case WEST:
+						this.hunterDirection = Direction.NORTH;
+						break;
+					default:
+						throw new IllegalArgumentException("Unzulässige HunterAction");
+				}
+				break;
+			}
+			case GO_FORWARD: {
+				switch (this.hunterDirection) {
+					case NORTH:
+						this.hunterPosition.setY(this.hunterPosition.getY() - 1);
+						break;
+					case EAST:
+						this.hunterPosition.setX(this.hunterPosition.getX() + 1);
+						break;
+					case SOUTH:
+						this.hunterPosition.setY(this.hunterPosition.getY() + 1);
+						break;
+					case WEST:
+						this.hunterPosition.setX(this.hunterPosition.getX() - 1);
+						break;
+					default:
+						throw new IllegalArgumentException("Unzulässige HunterAction");
+				}
+				break;
+			}
+			default:
+				// Hier soll nichts gemacht werden
+				break;
+		}
+	}
+
+	/**
+	 * Fügt ein Element ein Element an der gewünschte Postion ein, oder aktualisiert ihn, wenn er schon
+	 * vorhanden ist
+	 *
+	 * @return das vorherige Element, wenn ein Element aktualisiert wurde oder null falls kein Element aktualisiert wurde.
+	 */
+	public CellInfo set(int x, int y, CellInfo newCellInfo) {
+		if (x < 0 || y < 0) {
+			throw new IllegalArgumentException("SET: Unzulässige Koordinaten " + "(" + x + ", " + y + ")" + "\n"
+					+ "x und y Koodirnaten müssen größer gleich 0 sein.");
+		}
+
+		try {
+			ArrayList<CellInfo> row = this.view.get(y);
+			CellInfo previousCellInfo = row.set(x, newCellInfo);
+			return previousCellInfo;
+
+		} catch (IndexOutOfBoundsException e) {
+			this.add(x, y, newCellInfo);
+			return null;
+		}
+	}
+
+	/**
+	 * Fügt ein Element an der gewünschte Postion ein
+	 *
+	 * Wird nur in der Set Methode genutzt.
+	 */
+	private boolean add(int x, int y, CellInfo newCellInfo) {
+		if (x < 0 || y < 0) {
+			return false;
+		}
+
+		try {
+			if (y >= this.view.size()) {
+
+				ArrayList<CellInfo> newRow = null;
+				for (int j = this.view.size(); j <= y; j++) {
+					newRow = new ArrayList<CellInfo>();
+					this.view.add(newRow);
+					for (int k = 0; k < x; k++) {
+						newRow.add(null);
+					}
+				}
+				newRow.add(newCellInfo);
+			} else {
+
+				ArrayList<CellInfo> row = this.view.get(y);
+				if (x >= row.size()) {
+					for (int i = row.size(); i < x; i++) {
+						row.add(null);
+					}
+					row.add(newCellInfo);
+				} else {
+					this.set(x, y, newCellInfo);
+				}
+			}
+		} catch (IndexOutOfBoundsException e) {
+			return false;
+		}
+		return true;
+	}
+
+	// TODO diese toString wird nie aufgerufen. Bitte die entsprechen Stelle in der Knoten Klasse anpassen.
+	@Override
+	public String toString() {
+		String s = "";
+		for (int row = 0; row < this.view.size(); row++) {
+			for (int col = 0; col < this.view.get(row).size(); col++) {
+				final CellInfo cellInfo = this.get(col, row);
+				if (cellInfo != null) {
+					s += cellInfo.getType().toString().substring(0, 2);
+				} else {
+					s += "NULL";
+				}
+			}
+		}
+		return s;
+	}
+
+	/**
+	 * Gibt alle Information von der HunterWorl aus der Konsole aus.
+	 */
+	public void print() {
+		String out = "HUNTER_WORLD\n{ hunterPosition: " + hunterPosition + ", hunterDirection: " + hunterDirection
+				+ ", goldPosition: " + goldPosition + ", hasGold: " + hasGold + ", numArrows: " + numArrows
+				+ ", wumpusAlive: " + wumpusAlive + " }\n";
+
+		int rows = view.size();
+		for (int row = 0; row < rows; row++) {
+			for (int col = 0; col < view.get(row).size(); col++) {
+				CellInfo cellInfo = get(col, row);
+				if (cellInfo != null)
+					out += cellInfo.toString() + new String(new char[25 - cellInfo.toString().length()]).replace('\0', ' ');
+				else
+					out += "NULL" + new String(new char[25 - 4]).replace('\0', ' ');;
+			}
+			out += "\n";
+		}
+
+		System.out.println(out);
+	}
+
 }

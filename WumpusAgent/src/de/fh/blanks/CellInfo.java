@@ -13,16 +13,16 @@ public class CellInfo
     /**
      * Hier sind alle noch unbekannte Zelle gespeichert, die rund um den bekannnten Welt liegen.
      */
-	private static LinkedList<CellInfo> wallList = new LinkedList<>();
+	private static LinkedList<CellInfo> unknownCells = new LinkedList<>();
 
     public CellInfo(CellType type){
     	this.type = type;
     }
     
     /**
-     * Konstrucktor für CellInfo von Typ WALL.
+     * Konstrucktor fï¿½r CellInfo von Typ WALL.
      * 
-     * Hier wird auch alle CellInfo von Typ WALL in einer wallList gespeichert.
+     * Hier wird auch alle CellInfo von Typ WALL in einer unknownCells gespeichert.
      * Die Koordinaten x und y werden genutzt um ein "Wall" Zelle als target zu sezten, und dorthin gehen.
      */
 	public CellInfo(int x, int y, double probabilityPit, double probabilityWumpus) {
@@ -30,7 +30,7 @@ public class CellInfo
 		this.position = new Point(x, y);
 		this.probabilityPit = probabilityPit;
 		this.probabilityWumpus = probabilityWumpus;
-		CellInfo.wallList.add(this);
+		CellInfo.unknownCells.add(this);
 	}
 
 	public Double getEstimate() {
@@ -79,12 +79,12 @@ public class CellInfo
 		}
 	}
     
-	public static LinkedList<CellInfo> getWallList(){
-		return CellInfo.wallList;
+	public static LinkedList<CellInfo> getUnknownCells(){
+		return CellInfo.unknownCells;
 	}
 	
 	public static void sortWallList() {
-		CellInfo.wallList.sort(new Comparator<CellInfo>() {
+		CellInfo.unknownCells.sort(new Comparator<CellInfo>() {
 			@Override
 			public int compare(CellInfo c1, CellInfo c2) {
 				return Double.compare(c1.getEstimate(), c2.getEstimate());

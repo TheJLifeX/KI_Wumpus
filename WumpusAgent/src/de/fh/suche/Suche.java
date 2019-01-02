@@ -96,11 +96,11 @@ public abstract class Suche {
 		 * TODO diese Reihenfolgen eventuell anpassen. Also für einen effizenten Suchalgorithmus.
 		 */
 
-		berechneNachfolger(vorgaenger, HunterAction.GO_FORWARD);
 
 		berechneNachfolger(vorgaenger, HunterAction.TURN_LEFT);
 		
 		berechneNachfolger(vorgaenger, HunterAction.TURN_RIGHT);
+        berechneNachfolger(vorgaenger, HunterAction.GO_FORWARD);
 
 		if (countSysout % 100 == 0) {
 //			System.out.println("o:" + openList.size() + "|" + "c:" + closedList.size());
