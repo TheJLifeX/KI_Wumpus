@@ -30,7 +30,7 @@ public class HunterWorld {
 
 
 	/*
-	  Diese Attribute werden benutzt um die 2 verschieden Wumpi-Arten festzustellen und spaeter zu toeten
+	  Diese Attribute werden benutzt um die 2 verschiedenen Wumpi-Arten festzustellen und spaeter zu toeten
 	*/
 
     // Wenn wir den Wumpus riechen, setzen wir aus um festzustellen ob dieser aktiv oder passiv ist
@@ -40,6 +40,7 @@ public class HunterWorld {
 	private Boolean wumpusIsPassive;
 	// Wird benutzt um zu gucken ob sich die Intensitaet des Geruchs aendert, um dann zu entscheiden um welchen Wumpus es sich handelt
 	private Integer oldStenchIntensity;
+
 
 
 	/**
@@ -86,6 +87,10 @@ public class HunterWorld {
 
 		// Aktuelle Reaktion des Server auf die letzte �bermittelte Action.
 
+
+		stenchRadar = percept.getWumpusStenchRadar();
+		System.out.println("STENCH_RADAR: " + stenchRadar.get(10));
+
 		// Alle m�glichen Serverr�ckmeldungen:
 		if(wumpusIsPassive == null){
 			stenchRadar = this.percept.getWumpusStenchRadar();
@@ -116,6 +121,10 @@ public class HunterWorld {
 
 
 		System.out.println("!!!Wumpus-Art!!! : " + wumpusIsPassive);
+
+
+
+		System.out.println("wumpusIsPassive : " + wumpusIsPassive);
 
 		if (actionEffect == HunterActionEffect.BUMPED_INTO_WALL) {
 			this.setWallInToView(this.hunterPosition, this.hunterDirection);
