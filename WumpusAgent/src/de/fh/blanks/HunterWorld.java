@@ -102,8 +102,11 @@ public class HunterWorld {
 				--sitCounter;
 
 			// Prueft ob sich die intensitaet veraendert, wenn ja ist der Wumpus aktiv, sonst passiv
-			if( oldStenchIntensity != null && (stenchIntensity == null || oldStenchIntensity.intValue() != stenchIntensity.intValue()))
+			if( oldStenchIntensity != null && (stenchIntensity == null || oldStenchIntensity.intValue() != stenchIntensity.intValue())){
 				wumpusIsPassive = false;
+				doSit = false;
+				sitCounter = 0:
+			}
 			else if(oldStenchIntensity != null && sitCounter == 0)
 				wumpusIsPassive = true;
 
@@ -115,9 +118,6 @@ public class HunterWorld {
 				// Der Hunter soll nichts tun um zu entscheiden um welchen Wumpus es sich handelt
 				doSit = true;
 			}
-		}else{
-			doSit = false;
-			sitCounter = 0;
 		}
 
 
