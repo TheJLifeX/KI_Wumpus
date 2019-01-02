@@ -37,11 +37,9 @@ public class HunterWorld {
 	private boolean doSit;
 	private int sitCounter;
     // Ein Boolean, ist entweder null (noch keine Information), true (der Wumpus ist passiv) oder false (der Wumpus ist aktiv)
-	private Boolean wumpusIsPassive;
+	private boolean wumpusIsPassive = true;
 	// Wird benutzt um zu gucken ob sich die Intensitaet des Geruchs aendert, um dann zu entscheiden um welchen Wumpus es sich handelt
 	private Integer oldStenchIntensity;
-
-
 
 	/**
 	 * Hier wird einen Puffer von Actions gespeichert.
@@ -51,7 +49,7 @@ public class HunterWorld {
 
 	public HunterWorld() {
 		view = new ArrayList<ArrayList<CellInfo>>();
-		wumpusIsPassive = null;
+		// wumpusIsPassive = null;
 		oldStenchIntensity = null;
 		doSit = false;
 		sitCounter = 0;
@@ -87,45 +85,13 @@ public class HunterWorld {
 
 		// Aktuelle Reaktion des Server auf die letzte �bermittelte Action.
 
-
-		stenchRadar = percept.getWumpusStenchRadar();
-		System.out.println("STENCH_RADAR: " + stenchRadar.get(10));
-
-		// Alle m�glichen Serverr�ckmeldungen:
-		if(wumpusIsPassive == null){
-			stenchRadar = this.percept.getWumpusStenchRadar();
-			Integer stenchIntensity = null;
-			if(!stenchRadar.values().isEmpty())
-				stenchIntensity = (Integer) stenchRadar.values().toArray()[0];
-
-			if(sitCounter > 0)
-				--sitCounter;
-
-			// Prueft ob sich die intensitaet veraendert, wenn ja ist der Wumpus aktiv, sonst passiv
-			if( oldStenchIntensity != null && (stenchIntensity == null || oldStenchIntensity.intValue() != stenchIntensity.intValue())){
+		if ( wumpusIsPassive )
+		{
+			if ( percept.isRumble() )
 				wumpusIsPassive = false;
-				doSit = false;
-				sitCounter = 0:
-			}
-			else if(oldStenchIntensity != null && sitCounter == 0)
-				wumpusIsPassive = true;
-
-			if(!doSit && stenchIntensity != null){
-				// Anzahl an Zuegen die der Hunter wartet um zu entscheiden um welchen Wumpus es sich handelt
-				sitCounter = 8;
-				// Wir legen einmal die alte Intensitaet fest und gucken sich diese mit der neuen unterscheidet
-				oldStenchIntensity = stenchIntensity;
-				// Der Hunter soll nichts tun um zu entscheiden um welchen Wumpus es sich handelt
-				doSit = true;
-			}
 		}
 
-
-		System.out.println("!!!Wumpus-Art!!! : " + wumpusIsPassive);
-
-
-
-		System.out.println("wumpusIsPassive : " + wumpusIsPassive);
+		stenchRadar = percept.getWumpusStenchRadar();
 
 		if (actionEffect == HunterActionEffect.BUMPED_INTO_WALL) {
 			this.setWallInToView(this.hunterPosition, this.hunterDirection);
@@ -194,15 +160,6 @@ public class HunterWorld {
 		 */
 
 		// Beispiel:
-
-		// Gebe alle riechbaren Wumpis aus
-//		System.out.println("WumpusID: Intensitaet");
-		if (stenchRadar.isEmpty()) {
-//			System.out.println("Kein Wumpi zu riechen");
-		}
-//		for (Map.Entry<Integer, Integer> g : stenchRadar.entrySet()) {
-//			System.out.println(g.getKey() + ":\t\t" + g.getValue());
-//		}
 	}
 
 	/**
@@ -211,7 +168,7 @@ public class HunterWorld {
 	public void passive_killPassiveWumpus()
 	{
 		// Wir konnten feststellen, dass der Wumpus passiv ist => Auf Distanz 1 gehen. Wumpus töten
-		if (wumpusIsPassive != null && wumpusAlive && wumpusAlive)
+		if (wumpusAlive)
 		{
 			Integer intensitaet = null;
 			if(!stenchRadar.isEmpty())
@@ -241,7 +198,8 @@ public class HunterWorld {
 			bufferActions.push(HunterAction.SIT);
 		}
 
-		passive_killPassiveWumpus();
+		if (wumpusIsPassive)
+			passive_killPassiveWumpus();
 
 		if(bufferActions.isEmpty()) {
 			this.exploreWorld();
