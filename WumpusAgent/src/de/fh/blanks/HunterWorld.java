@@ -27,7 +27,21 @@ public class HunterWorld {
 	private Point goldPosition = new Point(-1, -1);
 	private boolean hasGold = false;
 	private boolean wumpusAlive = true;
-	
+
+
+	/*
+	  Diese Attribute werden benutzt um die 2 verschieden Wumpi-Arten festzustellen und spaeter zu toeten
+	*/
+
+    // Wenn wir den Wumpus riechen, setzen wir aus um festzustellen ob dieser aktiv oder passiv ist
+	private boolean doSit;
+	private int sitCounter;
+    // Ein Boolean, ist entweder null (noch keine Information), true (der Wumpus ist passiv) oder false (der Wumpus ist aktiv)
+	private Boolean wumpusIsPassive;
+	// Wird benutzt um zu gucken ob sich die Intensitaet des Geruchs aendert, um dann zu entscheiden um welchen Wumpus es sich handelt
+	private int oldStenchIntensity;
+
+
 	/**
 	 * Hier wird einen Puffer von Actions gespeichert.
 	 * Zum beispiel wenn der HUNTER von einem Quadrat A zu einem anderen B hingehen soll, dann sind die zu ausführenden Actions hier gespeichert.
@@ -36,6 +50,8 @@ public class HunterWorld {
 
 	public HunterWorld() {
 		view = new ArrayList<ArrayList<CellInfo>>();
+		wumpusIsPassive = null;
+		doSit = false;
 	}
 
 	/**Hier wird nur:
@@ -69,7 +85,25 @@ public class HunterWorld {
 		// Aktuelle Reaktion des Server auf die letzte Übermittelte Action.
 
 		// Alle möglichen Serverrückmeldungen:
+		if(wumpusIsPassive == null){
+			stenchRadar = this.percept.getWumpusStenchRadar();
+			Integer stenchIntensity = stenchRadar.get(0);
+			// Anzahl an Zuegen die der Hunter wartet um zu entscheiden um welchen Wumpus es sich handelt
+			sitCounter = 5;
 
+			if(!doSit && stenchIntensity != null){
+				oldStenchIntensity = stenchIntensity;
+				doSit = true;
+			}
+
+			if(stenchIntensity != null && oldStenchIntensity != stenchIntensity){
+			    wumpusIsPassive = false;
+				doSit = false;
+			}else{
+				wumpusIsPassive = true;
+			}
+		}
+		System.out.println("!!!Wumpus-Art!!! : " + wumpusIsPassive);
 
 		if (actionEffect == HunterActionEffect.BUMPED_INTO_WALL) {
 			this.setWallInToView(this.hunterPosition, this.hunterDirection);
@@ -79,6 +113,7 @@ public class HunterWorld {
 			// Nur bei Multiplayermodus
 			// Letzte Bewegungsaktion war ein Zusammenstoß einem weiteren Hunter
 		}
+
 
 
 		/*
@@ -137,7 +172,6 @@ public class HunterWorld {
 		 */
 
 		// Beispiel:
-		stenchRadar = this.percept.getWumpusStenchRadar();
 
 		// Gebe alle riechbaren Wumpis aus
 //		System.out.println("WumpusID: Intensitaet");
@@ -153,7 +187,10 @@ public class HunterWorld {
 	 * Gibt die nächste Action, die vom Hunter augeführt werden soll.
 	 */
 	public HunterAction action() {
-
+		if(doSit){
+			--sitCounter;
+			bufferActions.push(HunterAction.SIT);
+		}
 		if(bufferActions.isEmpty()) {
 			this.exploreWorld();
 			System.out.println("Buffer Actions List:");
@@ -161,9 +198,10 @@ public class HunterWorld {
 			System.out.println("");
 			this.print();
 		}
+
 		nextAction = this.bufferActions.remove();
 
-		if (actionEffect == HunterActionEffect.GAME_OVER) {
+/*		if (actionEffect == HunterActionEffect.GAME_OVER) {
 			// Das Spiel ist verloren
 			// TODO : Ausgabe von allen gefragete Information von der Aufgabestellung.
 			this.nextAction = HunterAction.QUIT_GAME;
@@ -174,7 +212,7 @@ public class HunterWorld {
 
 		if (actionEffect == HunterActionEffect.NO_MORE_SHOOTS) {
 			// TODO A* bis zur Position (1, 1) ( einfach schon implementierte Suchstrategie anwenden)
-		}
+		}*/
 		return nextAction;
 	}
 
