@@ -30,7 +30,7 @@ public class CellInfo
 		this.position = new Point(x, y);
 		this.probabilityPit = probabilityPit;
 		this.probabilityWumpus = probabilityWumpus;
-		CellInfo.wallList.add(this);
+		CellInfo.wallList.add(0, this);
 	}
 
 	public Double getEstimate() {
