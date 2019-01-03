@@ -196,13 +196,7 @@ public class HunterWorld {
 
 		if ((actionEffect == HunterActionEffect.NO_MORE_SHOOTS && this.hasGold)
 				|| (!this.wumpusAlive && this.hasGold)) {
-			// Breitensuche bis zur Position (1, 1)
-			this.bufferActions.clear();
-			Point targetPosition = new Point(1, 1);
-			this.get(targetPosition.getX(), targetPosition.getY()).setType(CellType.TARGET);
-			Suche suche = new Breitensuche(this, targetPosition);
-			this.bufferActions = suche.start();
-			this.bufferActions.add(HunterAction.QUIT_GAME);
+			this.quitGame();
 		}
 		
 		if (bufferActions.isEmpty()) {
@@ -234,9 +228,9 @@ public class HunterWorld {
 				}
 				break;
 			}
+			this.previousStenchRadar = stenchRadar;
 		}
 
-		this.previousStenchRadar = stenchRadar;
 		this.nextAction = this.bufferActions.remove();
 	}
 
@@ -531,8 +525,8 @@ public class HunterWorld {
 		try {
 			CellInfo targetCell = CellInfo.getWallList().remove();
 			if (targetCell.getEstimate() >= 110) {
-				this.bufferActions.push(HunterAction.QUIT_GAME);
 				System.out.println("Ende :: sichere Welt komplett entdeckt!");
+				this.quitGame();
 				return;
 			}
 			Point targetPosition = targetCell.getPosition();
@@ -542,6 +536,7 @@ public class HunterWorld {
 		} catch (NoSuchElementException e) {
 			this.bufferActions.push(HunterAction.QUIT_GAME);
 			System.out.println("Ende :: Welt komplett entdeckt!");
+			this.quitGame();
 		}
 	}
 
@@ -621,5 +616,17 @@ public class HunterWorld {
 
 	public Point getHunterPosition() {
 		return this.hunterPosition;
+	}
+	
+	/**
+	 * Hunter geht wieder zur Position (1, 1), dann das Spiel beenden
+	 */
+	private void quitGame() {
+		this.bufferActions.clear();
+		Point targetPosition = new Point(1, 1);
+		this.get(targetPosition.getX(), targetPosition.getY()).setType(CellType.TARGET);
+		Suche suche = new Breitensuche(this, targetPosition);
+		this.bufferActions = suche.start();
+		this.bufferActions.add(HunterAction.QUIT_GAME);
 	}
 }
