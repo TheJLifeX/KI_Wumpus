@@ -16,14 +16,15 @@ public class MyAgent extends WumpusHunterAgent {
 
 	HunterWorld hunterWorld = new HunterWorld();
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) 
+	{
 
 		MyAgent agent = new MyAgent("");
 		MyAgent.start(agent,"127.0.0.1", 5000);
 	}
 
-	public MyAgent(String name) {
-
+	public MyAgent(String name) 
+	{
 		super(name);
 	}
 
@@ -39,10 +40,13 @@ public class MyAgent extends WumpusHunterAgent {
 	 * @param actionEffect Reaktion des Servers auf vorhergewÃ¤hlte Aktion
 	 */
 	@Override
-	public void updateState(HunterPercept percept, HunterActionEffect actionEffect) {
+	public void updateState(HunterPercept percept, HunterActionEffect actionEffect) 
+	{
+		System.out.println("--nextAction in updateState: " + nextAction + "--");
+
 		// nextAction ist hier die previousAction da diese zum Zeitpunkt des Aufrufs von updateState(...) schon
 		// ausgefuehrt wurde
-		this.hunterWorld.updateState(percept, actionEffect, nextAction);
+		hunterWorld.updateState(percept, actionEffect, nextAction);
 	}
 
 	/**
@@ -58,7 +62,8 @@ public class MyAgent extends WumpusHunterAgent {
 	 * @return Die nächste HunterAction die vom Server ausgeführt werden soll
 	 */
 	@Override
-	public HunterAction action() {
+	public HunterAction action() 
+	{
 
 		/*HunterAction
         Mögliche HunterActions sind möglich:

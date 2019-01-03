@@ -15,8 +15,8 @@ public class HunterWorld {
 
 //	private HunterPercept previousPercept; Diese Variable wird eventuell sp�ter benutzt werden.
 	private HunterAction previousAction;
-	private HunterActionEffect actionEffect;
 	private HunterAction nextAction = HunterAction.GO_FORWARD;
+	private HunterActionEffect actionEffect;
 //	private HunterActionEffect previousActionEffect; Diese Variable wird eventuell sp�ter benutzt werden.
 	private HunterPercept percept;
 	private Hashtable<Integer, Integer> stenchRadar;
@@ -27,6 +27,10 @@ public class HunterWorld {
 	private Point goldPosition = new Point(-1, -1);
 	private boolean hasGold = false;
 	private boolean wumpusAlive = true;
+
+
+	private int points = 1000;
+	private Point goalPosition = new Point(1, 1);
 
 
 
@@ -46,10 +50,15 @@ public class HunterWorld {
 	 */
 	private LinkedList<HunterAction> bufferActions = new LinkedList<>();
 
-	public HunterWorld() {
+	public HunterWorld() 
+	{
 		view = new ArrayList<ArrayList<CellInfo>>();
 		// wumpusIsPassive = null;
 		oldStenchIntensity = null;
+
+		// Unbefleckte HunterWorld anzeigen.
+		System.out.println("HUNTER_WORLD_CONSTRUCTOR");
+		print();
 	}
 
 	/**Hier wird nur:
@@ -71,7 +80,8 @@ public class HunterWorld {
 	 * @param actionEffect: Information, die wir von der Server bekommen haben,
 	 *        durch unsere letzte Action.
 	 */
-	public void updateState(HunterPercept percept, HunterActionEffect actionEffect, HunterAction previousAction) {
+	public void updateState(HunterPercept percept, HunterActionEffect actionEffect, HunterAction previousAction) 
+	{
 		/**
 		 * Je nach Sichtbarkeit & Schwierigkeitsgrad (laut Serverkonfiguration) aktuelle
 		 * Wahrnehmung des Hunters. Beim Wumpus erhalten Sie je nach Level mehr oder
@@ -79,6 +89,7 @@ public class HunterWorld {
 		 */
 		this.percept = percept;
 		this.actionEffect = actionEffect;
+		this.previousAction = previousAction;
 
 		// Feststellen, ob der Wumpus passiv oder aktiv ist.
 		// Anmerkung: Geht immer in if-Block, wenn Wumpus passiv ist.
@@ -101,6 +112,8 @@ public class HunterWorld {
 			// Letzte Bewegungsaktion war ein Zusammensto� einem weiteren Hunter
 		}
 
+		if (actionEffect == HunterActionEffect.NO_MORE_SHOOTS)
+			numArrows = 0;
 
 
 		/*
@@ -114,7 +127,7 @@ public class HunterWorld {
 		if (actionEffect == HunterActionEffect.MOVEMENT_SUCCESSFUL || actionEffect == HunterActionEffect.GAME_INITIALIZED || actionEffect == HunterActionEffect.GOLD_FOUND) {
 			
 			// wenn Letzte Bewegungsaktion war g�ltig, dann update HunterPosition.
-			updateHunterPosition(previousAction);
+			updateHunterPosition();
 			
 			
 			if (actionEffect == HunterActionEffect.GOLD_FOUND) {
@@ -145,24 +158,86 @@ public class HunterWorld {
 				}			
 			}
 		}
-		
+		// Punktekonto updaten
+		updatePoints();
+		print();
+	}
 
-		// TODO Wumpus t�ten.
-		// Also 1* Erkennen mit h�heren Wahrscheinlichkeit, wo der Wumpus ist.
-		//      2* Actions festlegen um ihn zu t�ten (also in der bufferActions pushen).
-		
-		/*
-		 * percept.getWumpusStenchRadar() enth�lt alle Wumpi in max. R(ie)eichweite in
-		 * einer Hashtable. Jeder Wumpi besitzt eine unique WumpusID (getKey). Die
-		 * Manhattendistanz zum jeweiligen Wumpi ergibt sich aus der Gestanksitensit�t
-		 * (getValue).
-		 */
+	/**
+	 * Gibt die naechste Action, die vom Hunter augefuehrt werden soll.
+	 */
+	public HunterAction action() 
+	{
+		// Zu Beginn immer testen, ob unser primäres Ziel erreicht ist.
+		// Primäres Ziel: { hasGold, wumpusDead }
+		// Ist dieses Ziel erreicht, interessiert uns nichts weiteres.
+		// Wir rennen einfach zum Anfang, um das Spiel abzuschließen!
+		if (hasGold && !wumpusAlive)
+		{
+			// TODO: AStern -> { 1, 1 }
+		}
 
-		// Beispiel:
+		// Wenn der Wumpus passiv ist, versuchen wir ihn zu töten.
+		if (wumpusIsPassive)
+			passive_killPassiveWumpus();
+
+		// Wenn wir oben keine Aktionen festlegen konnten, erkunden
+		// wir einfach die Welt.
+		if(bufferActions.isEmpty()) 
+			exploreWorld();
+
+		// Nächste Aktion
+		nextAction = bufferActions.remove();
+		return nextAction;
+	}
+
+	/**
+	 * Updates the Hunters Points according to previousAction and the WorldModels
+	 */
+	public void updatePoints()
+	{
+		switch (previousAction)
+		{
+			case TURN_RIGHT:
+			{
+				--points;
+			} break;
+			case TURN_LEFT:
+			{
+				--points;
+			} break;
+			case GO_FORWARD:
+			{
+				--points;
+				if (hasGold && !wumpusAlive && hunterPosition.equals(goalPosition))
+					points += 100;
+			} break;
+
+			case SIT:
+			{
+				--points;
+			} break;
+
+			case SHOOT:
+			{
+				points -= 10;
+				if (percept.isScream())
+					points += 100;
+				break;
+			}
+
+			case GRAB:
+
+				// MORITZ: Könnte abused werden ? Wie kann das sicherer werden ? Previous hasGold ?
+				if (hasGold)
+					points += 100;
+				break;
+		}
 	}
 
 	/**
 	 * Passive Strategy to kill a passive Wumpus.
+	 * Shoot in all directions if Wumpus is distance 1.
 	 */
 	public void passive_killPassiveWumpus()
 	{
@@ -186,54 +261,6 @@ public class HunterWorld {
 
 			// TODO: In alle Richtungen schießen.
 		}
-	}
-
-	/**
-	 * Gibt die n�chste Action, die vom Hunter augef�hrt werden soll.
-	 */
-	public HunterAction action() 
-	{
-		// Zu Beginn immer testen, ob unser primäres Ziel erreicht ist.
-		// Primäres Ziel: { hasGold, wumpusDead }
-		// Ist dieses Ziel erreicht, interessiert uns nichts weiteres.
-		// Wir rennen einfach zum Anfang, um das Spiel abzuschließen!
-		if (hasGold && !wumpusAlive)
-		{
-			/*// TODO: AStern zu { 1, 1 }
-			Suche suche = new Breitensuche(this, new Point(1, 1));
-			bufferActions = suche.start();
-			return */
-		}
-
-		// Wenn der Wumpus passiv ist, versuchen wir ihn zu töten.
-		if (wumpusIsPassive)
-			passive_killPassiveWumpus();
-
-		// Wenn wir oben keine Aktionen festlegen konnten, erkunden
-		// wir einfach die Welt.
-		if(bufferActions.isEmpty()) {
-			this.exploreWorld();
-			System.out.println("Buffer Actions List:");
-			this.bufferActions.forEach(System.out::println);
-			System.out.println("");
-			this.print();
-		}
-
-		nextAction = this.bufferActions.remove();
-		return nextAction;
-
-/*		if (actionEffect == HunterActionEffect.GAME_OVER) {
-			// Das Spiel ist verloren
-			// TODO : Ausgabe von allen gefragete Information von der Aufgabestellung.
-			this.nextAction = HunterAction.QUIT_GAME;
-		}
-		if (this.actionEffect == HunterActionEffect.WUMPUS_KILLED) {
-			this.wumpusAlive = false;
-		}
-
-		if (actionEffect == HunterActionEffect.NO_MORE_SHOOTS) {
-			// TODO A* bis zur Position (1, 1) ( einfach schon implementierte Suchstrategie anwenden)
-		}*/
 	}
 
 	/**
@@ -427,7 +454,7 @@ public class HunterWorld {
 		 * Nach alle Anderung hier wird die wallList noch sortiert damit die am wenigsten gef�hrliche "Wall"
 		 * am Anfang der Liste stehen.
 		 */
-		// CellInfo.sortUnknownCells_ascending();
+		CellInfo.sortUnknownCells_ascending();
 		CellInfo.shuffleUnknownCells();
 	}
 	
@@ -492,9 +519,8 @@ public class HunterWorld {
 
 		this.set(newHunterPosition.getX(), newHunterPosition.getY(), null);
 	}
-	private void updateHunterPosition(HunterAction previousAction) {
-		this.previousAction = previousAction;
-
+	private void updateHunterPosition()
+	{
 		switch (previousAction) {
 			case TURN_LEFT: {
 				switch (hunterDirection) {
@@ -622,7 +648,7 @@ public class HunterWorld {
 		return true;
 	}
 
-	// TODO diese toString wird nie aufgerufen. Bitte die entsprechen Stelle in der Knoten Klasse anpassen.
+	/*// TODO diese toString wird nie aufgerufen. Bitte die entsprechen Stelle in der Knoten Klasse anpassen.
 	@Override
 	public String toString() {
 		String s = "";
@@ -637,19 +663,22 @@ public class HunterWorld {
 			}
 		}
 		return s;
-	}
+	}*/
 
 	/**
-	 * Gibt alle Information von der HunterWorl aus der Konsole aus.
+	 * Gibt alle Information von der HunterWorld aus der Konsole aus.
 	 */
-	public void print() {
+	public void print() 
+	{
 		String out = "HUNTER_WORLD\n{ hunterPosition: " + hunterPosition + ", hunterDirection: " + hunterDirection
 				+ ", goldPosition: " + goldPosition + ", hasGold: " + hasGold + ", numArrows: " + numArrows
-				+ ", wumpusAlive: " + wumpusAlive + " }\n";
+				+ ", wumpusAlive: " + wumpusAlive + ", Points: " + points + "}\n";
 
 		int rows = view.size();
-		for (int row = 0; row < rows; row++) {
-			for (int col = 0; col < view.get(row).size(); col++) {
+		for (int row = 0; row < rows; ++row) 
+		{
+			for (int col = 0; col < view.get(row).size(); ++col) 
+			{
 				CellInfo cellInfo = get(col, row);
 				if (cellInfo != null)
 					out += cellInfo.toString() + new String(new char[25 - cellInfo.toString().length()]).replace('\0', ' ');
@@ -658,7 +687,6 @@ public class HunterWorld {
 			}
 			out += "\n";
 		}
-
 		System.out.println(out);
 	}
 
