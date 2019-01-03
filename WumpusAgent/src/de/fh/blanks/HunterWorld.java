@@ -29,13 +29,12 @@ public class HunterWorld {
 	private boolean wumpusAlive = true;
 
 
+
 	/*
 	  Diese Attribute werden benutzt um die 2 verschiedenen Wumpi-Arten festzustellen und spaeter zu toeten
 	*/
 
     // Wenn wir den Wumpus riechen, setzen wir aus um festzustellen ob dieser aktiv oder passiv ist
-	private boolean doSit;
-	private int sitCounter;
     // Ein Boolean, ist entweder null (noch keine Information), true (der Wumpus ist passiv) oder false (der Wumpus ist aktiv)
 	private boolean wumpusIsPassive = true;
 	// Wird benutzt um zu gucken ob sich die Intensitaet des Geruchs aendert, um dann zu entscheiden um welchen Wumpus es sich handelt
@@ -51,8 +50,6 @@ public class HunterWorld {
 		view = new ArrayList<ArrayList<CellInfo>>();
 		// wumpusIsPassive = null;
 		oldStenchIntensity = null;
-		doSit = false;
-		sitCounter = 0;
 	}
 
 	/**Hier wird nur:
@@ -83,8 +80,10 @@ public class HunterWorld {
 		this.percept = percept;
 		this.actionEffect = actionEffect;
 
-		// Aktuelle Reaktion des Server auf die letzte �bermittelte Action.
-
+		// Feststellen, ob der Wumpus passiv oder aktiv ist.
+		// Anmerkung: Geht immer in if-Block, wenn Wumpus passiv ist.
+		// Optimierung: Nur ca. 5 - 10 Mal testen. Danach sollte klar
+		// sein, welche Wumpusart vorliegt.
 		if ( wumpusIsPassive )
 		{
 			if ( percept.isRumble() )
@@ -192,11 +191,8 @@ public class HunterWorld {
 	/**
 	 * Gibt die n�chste Action, die vom Hunter augef�hrt werden soll.
 	 */
-	public HunterAction action() {
-		System.out.println("Sit?????????????: " + doSit);
-		if(doSit && sitCounter > 0){
-			bufferActions.push(HunterAction.SIT);
-		}
+	public HunterAction action() 
+	{
 
 		if (wumpusIsPassive)
 			passive_killPassiveWumpus();
