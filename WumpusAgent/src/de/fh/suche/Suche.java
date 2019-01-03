@@ -47,39 +47,44 @@ public abstract class Suche {
 
 	/**
 	 * Ist die Suche fündig geworden, gibt die start-Methode die Liste von HunterActions
-	 *  zurück,um vom Startposition der Hunter bis zur gewünschter zielPostion zu gehen.  
+	 * zurück,um vom Startposition der Hunter bis zur gewünschter zielPostion zu gehen.  
 	 *
 	 * @return 
 	 */
 	public LinkedList<HunterAction> start() {
 		// Baue den Baum gemäß gewünschter Suche auf
 
-		if (this.zielPosition == null || this.hunterWorld == null || this.zielPosition.getX() < 0 || this.zielPosition.getY() < 0) {
+		if (zielPosition == null || hunterWorld == null || 
+			zielPosition.getX() < 0 || zielPosition.getY() < 0)
 			throw new NullPointerException("Ungültiger Zielzustand oder HunterWorld ist leer");
-		}
 
 		// Erzeuge Wurzelknoten
-		this.fuegeKnotenEin(new Knoten(hunterWorld.getView(), hunterWorld.getHunterPosition(), hunterWorld.getHunterDirection()));
+		fuegeKnotenEin(new Knoten(hunterWorld.getView(), hunterWorld.getHunterPosition(), 
+			hunterWorld.getHunterDirection()));
 
 		// Solange noch Expansionskandidaten vorhanden (Mindestens die Wurzel)
-		while (!openList.isEmpty()) {
+		while (!openList.isEmpty()) 
+		{
 
 			// Es wird *immer* der erste Knoten aus der Openlist entnommen
 			// Die Sortierung der Openlist bestimmt die Suche bzw. Ihr :-)
-			Knoten expansionsKandidat = this.openList.remove(0);
+			Knoten expansionsKandidat = openList.remove(0);
 			
 			// Wird ein Knoten aus der Openlist entfernt landet
 			// dieser sofort in der Closelist, damit dieser nicht noch einmal
 			// expandiert wird (wir wollen keine loops im Baum!)
-			this.closedList.add(expansionsKandidat.hashCode());
+			closedList.add(expansionsKandidat.hashCode());
 
 			// Schaue ob Knoten Ziel ist
-			if (expansionsKandidat.isZiel(this.zielPosition)) {
+			if (expansionsKandidat.isZiel(zielPosition)) 
+			{
 				// Kandidat entspricht dem gewünschten Zielzustand ( also Hunter an der ZielPostion) 
 				Knoten loesungsKnoten = expansionsKandidat;
 //				System.out.println("\nDie Suche war Erfolgsreich!\n");
 				return loesungsKnoten.berechneHunterActions();
-			} else {
+			} 
+			else 
+			{
 				// Ist nicht gleich dem Zielzustand, also expandiere nächsten Knoten
 				expandiereKnoten(expansionsKandidat);
 			}

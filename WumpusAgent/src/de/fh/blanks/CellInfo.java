@@ -1,5 +1,6 @@
 package de.fh.blanks;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 
@@ -33,6 +34,10 @@ public class CellInfo
 		CellInfo.unknownCells.add(this);
 	}
 
+	/**
+	 * MORITZ: Was ist der Sinn hinter dem Estimate ?
+	 * @return probabilityPit + probabilityWumpus
+	 */
 	public Double getEstimate() {
 		return this.probabilityPit + this.probabilityWumpus;
 	}
@@ -83,12 +88,26 @@ public class CellInfo
 		return CellInfo.unknownCells;
 	}
 	
-	public static void sortWallList() {
-		CellInfo.unknownCells.sort(new Comparator<CellInfo>() {
+	/**
+	 * Sorts Unknown Cells in ascending order of their Estimates.
+	 */
+	public static void sortUnknownCells_ascending()
+	{
+		CellInfo.unknownCells.sort(new Comparator<CellInfo>()
+		{
 			@Override
-			public int compare(CellInfo c1, CellInfo c2) {
+			public int compare(CellInfo c1, CellInfo c2) 
+			{
 				return Double.compare(c1.getEstimate(), c2.getEstimate());
 			}
 		});
+	}
+
+	/**
+	 * Randomly Shuffles Unknown Cells
+	 */
+	public static void shuffleUnknownCells()
+	{
+		Collections.shuffle(CellInfo.unknownCells);
 	}
 }

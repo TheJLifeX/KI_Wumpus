@@ -193,10 +193,24 @@ public class HunterWorld {
 	 */
 	public HunterAction action() 
 	{
+		// Zu Beginn immer testen, ob unser primäres Ziel erreicht ist.
+		// Primäres Ziel: { hasGold, wumpusDead }
+		// Ist dieses Ziel erreicht, interessiert uns nichts weiteres.
+		// Wir rennen einfach zum Anfang, um das Spiel abzuschließen!
+		if (hasGold && !wumpusAlive)
+		{
+			/*// TODO: AStern zu { 1, 1 }
+			Suche suche = new Breitensuche(this, new Point(1, 1));
+			bufferActions = suche.start();
+			return */
+		}
 
+		// Wenn der Wumpus passiv ist, versuchen wir ihn zu töten.
 		if (wumpusIsPassive)
 			passive_killPassiveWumpus();
 
+		// Wenn wir oben keine Aktionen festlegen konnten, erkunden
+		// wir einfach die Welt.
 		if(bufferActions.isEmpty()) {
 			this.exploreWorld();
 			System.out.println("Buffer Actions List:");
@@ -413,27 +427,40 @@ public class HunterWorld {
 		 * Nach alle Anderung hier wird die wallList noch sortiert damit die am wenigsten gef�hrliche "Wall"
 		 * am Anfang der Liste stehen.
 		 */
-		CellInfo.sortWallList();
+		// CellInfo.sortUnknownCells_ascending();
+		CellInfo.shuffleUnknownCells();
 	}
 	
 	/**
 	 * Bestimmt die n�chsten Actions und speichert die in der bufferActions list.
 	 */
-	public void exploreWorld() {
+	public void exploreWorld() 
+	{
 
-		try {
+		try 
+		{
+			// MORITZ: Für diagonales Explorieren ist dann nur die Reihenfolge
+			// der Unknown Cells wichtig ?
 			CellInfo targetCell = CellInfo.getUnknownCells().remove();
-			if(targetCell.getEstimate() >= 110) {
+
+			// MORITZ: Ich verstehe hier nicht ganz wie der im if stehende
+			// Ausdruck sich in "Spiel beenden" übersetzt.
+			/*if(targetCell.getEstimate() >= 110) 
+			{
 				this.bufferActions.push(HunterAction.QUIT_GAME);
 				System.out.println("Ende :: sichere Welt komplett entdeckt!");
 				return;
-			}
+			}*/
 			Point zielPosition = targetCell.getPosition();
-			this.get(zielPosition.getX(), zielPosition.getY()).setType(CellType.TARGET);
+
+			// MORITZ: Warum wird Target hier gesetzt ?
+			get(zielPosition.getX(), zielPosition.getY()).setType(CellType.TARGET);
 			Suche suche = new Breitensuche(this, zielPosition);
-			this.bufferActions = suche.start();
-		} catch (NoSuchElementException e) {
-			this.bufferActions.push(HunterAction.QUIT_GAME);
+			bufferActions = suche.start();
+		} 
+		catch (NoSuchElementException e) 
+		{
+			bufferActions.push(HunterAction.QUIT_GAME);
 			System.out.println("Ende :: Welt komplett entdeckt!");
 		}
 	}
