@@ -118,7 +118,7 @@ public abstract class Suche {
 					vorgaenger.getHunterDirection(), hunterAction);
 
 			CellInfo cellInfo = hunterWorld.get(neueHunterPosition.getX(), neueHunterPosition.getY());
-			if (cellInfo == null || cellInfo.getType() == CellType.WALL || cellInfo.getType() == CellType.STENCH)
+			if (cellInfo == null || cellInfo.getType() == CellType.WALL)
 				return;
 		}
 
