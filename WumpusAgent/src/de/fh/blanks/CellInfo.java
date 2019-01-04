@@ -25,7 +25,7 @@ public class CellInfo
      * Die Koordinaten x und y werden genutzt um ein "Wall" Zelle als target zu sezten, und dorthin gehen.
      */
 	public CellInfo(int x, int y, double probabilityPit) {
-		this.type = CellType.WALL;
+		this.type = CellType.UNKWON;
 		this.position = new Point(x, y);
 		this.probabilityPit = probabilityPit;
 		CellInfo.unknownCells.add(0, this);
@@ -61,7 +61,7 @@ public class CellInfo
 	
 	@Override
 	public String toString() {
-		if (this.type != CellType.WALL) {
+		if (this.type != CellType.UNKWON) {
 			return "(" + type.name() + ")";
 		} else {
 			return "(" + type.name().substring(0, 2) + " pit:" + this.probabilityPit + ")";
@@ -72,7 +72,7 @@ public class CellInfo
 		return CellInfo.unknownCells;
 	}
 	
-	public static void sortWallList() {
+	public static void sortUnkwonCells() {
 		CellInfo.unknownCells.sort(new Comparator<CellInfo>() {
 			@Override
 			public int compare(CellInfo c1, CellInfo c2) {

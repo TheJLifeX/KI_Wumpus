@@ -37,7 +37,7 @@ public abstract class Suche {
 		this.hunterWorld = hunterWorld;
 		
 		CellInfo zielPostionCellInfo = hunterWorld.get(zielPosition.getX(), zielPosition.getY());
-		if ( zielPostionCellInfo == null || zielPostionCellInfo.getType() == CellType.WALL) {
+		if ( zielPostionCellInfo == null || zielPostionCellInfo.getType() == CellType.UNKWON) {
 			throw new IllegalArgumentException("zielPostion liegt auﬂerhalb der erreichbare Welt");
 		}
 		
@@ -118,7 +118,7 @@ public abstract class Suche {
 					vorgaenger.getHunterDirection(), hunterAction);
 
 			CellInfo cellInfo = hunterWorld.get(neueHunterPosition.getX(), neueHunterPosition.getY());
-			if (cellInfo == null || cellInfo.getType() == CellType.WALL)
+			if (cellInfo == null || cellInfo.getType() == CellType.UNKWON)
 				return;
 		}
 

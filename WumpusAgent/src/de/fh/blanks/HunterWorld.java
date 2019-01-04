@@ -389,12 +389,12 @@ public class HunterWorld {
 	}
 
 	private void setProbabilityOfCell(CellType cellType, int x, int y){
-		CellInfo targetWall = this.get(x, y);
-		if (targetWall != null) {
+		CellInfo targetUnkwonCell = this.get(x, y);
+		if (targetUnkwonCell != null) {
 			if (cellType == CellType.BREEZE) {
-				targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
+				targetUnkwonCell.setProbabilityPit(targetUnkwonCell.getProbabilityPit() + 60.0);
 			} else if (cellType == CellType.EMPTY) {
-				targetWall.setProbabilityPit(0.0);
+				targetUnkwonCell.setProbabilityPit(0.0);
 			}
 		} else {
 			if (cellType == CellType.BREEZE) {
@@ -405,7 +405,7 @@ public class HunterWorld {
 		}
 	}
 	/**
-	 * Aktulisiert bzw. setzt passende CellInfo von Typ Wall rund um den Aktuelle
+	 * Aktulisiert bzw. setzt passende CellInfo von Typ "Unkwon" Cell rund um den Aktuelle
 	 * Position der Hunter.
 	 * 
 	 * @param cellType
@@ -434,10 +434,10 @@ public class HunterWorld {
 		setProbabilityOfCell(cellType, x, y);
 
 		/**
-		 * Nach alle Anderung hier wird die wallList noch sortiert damit die am
-		 * wenigsten gefährliche "Wall" am Anfang der Liste stehen.
+		 * Nach alle Aenderung hier wird die UnkwonCells sortiert damit die am
+		 * wenigsten gefährliche "UNKWON" Cell am Anfang der Liste stehen.
 		 */
-		CellInfo.sortWallList();
+		CellInfo.sortUnkwonCells();
 	}
 
 	/**
