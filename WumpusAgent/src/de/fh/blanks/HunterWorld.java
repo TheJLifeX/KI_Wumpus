@@ -220,7 +220,14 @@ public class HunterWorld {
 				if (g.getValue() == 3) {
 					this.bufferActions.push(HunterAction.SIT);
 				} else if (g.getValue() == 2 || g.getValue() == 1) {
-					if (percept.isRumble() && g.getValue() != this.previousStenchRadar.get(g.getKey())) {
+					
+					if(this.previousStenchRadar == null || this.previousStenchRadar.get(g.getKey()) == null) {
+						this.bufferActions.push(HunterAction.SIT);
+						break;
+					}
+						
+					
+					if (percept.isRumble() && g.getValue() < this.previousStenchRadar.get(g.getKey())) {
 						this.bufferActions.push(HunterAction.SHOOT);
 					} else {
 						this.bufferActions.push(HunterAction.SIT);
