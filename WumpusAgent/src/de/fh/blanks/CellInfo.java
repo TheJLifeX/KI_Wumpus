@@ -8,8 +8,7 @@ public class CellInfo
 	private CellType type;
 	private Point position;
     private double probabilityPit;
-    private double probabilityWumpus;
-    
+
     /**
      * Hier sind alle noch unbekannte Zelle gespeichert, die rund um den bekannnten Welt liegen.
      */
@@ -20,7 +19,7 @@ public class CellInfo
     }
     
     /**
-     * Konstrucktor für CellInfo von Typ WALL.
+     * Konstrucktor fï¿½r CellInfo von Typ WALL.
      * 
      * Hier wird auch alle CellInfo von Typ WALL in einer unknownCells gespeichert.
      * Die Koordinaten x und y werden genutzt um ein "Wall" Zelle als target zu sezten, und dorthin gehen.
@@ -29,12 +28,11 @@ public class CellInfo
 		this.type = CellType.WALL;
 		this.position = new Point(x, y);
 		this.probabilityPit = probabilityPit;
-		this.probabilityWumpus = probabilityWumpus;
-		CellInfo.unknownCells.add(0, this);
+		CellInfo.wallList.add(0, this);
 	}
 
 	public Double getEstimate() {
-		return this.probabilityPit + this.probabilityWumpus;
+		return this.probabilityPit;
 	}
 	
 	public Point getPosition() {
@@ -53,14 +51,6 @@ public class CellInfo
 		this.probabilityPit = probabilityPit;
 	}
 
-	public double getProbabilityWumpus() {
-		return probabilityWumpus;
-	}
-
-	public void setProbabilityWumpus(double probabilityWumpus) {
-		this.probabilityWumpus = probabilityWumpus;
-	}
-	
 	public CellType getType() {
 		return type;
 	}
@@ -74,8 +64,7 @@ public class CellInfo
 		if (this.type != CellType.WALL) {
 			return "(" + type.name() + ")";
 		} else {
-			return "(" + type.name().substring(0, 2) + " pit:" + this.probabilityPit + " wum:" + this.probabilityWumpus
-					+ ")";
+			return "(" + type.name().substring(0, 2) + " pit:" + this.probabilityPit + ")";
 		}
 	}
     

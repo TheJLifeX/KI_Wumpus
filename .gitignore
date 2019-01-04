@@ -1,5 +1,6 @@
+.gitignore
 <<<<<<< HEAD
-.idea
+**/.idea
 =======
 
 # Created by https://www.gitignore.io/api/eclipse
