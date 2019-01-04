@@ -20,6 +20,8 @@ public class HunterWorld {
 	private Point hunterPosition = new Point(1, 1);
 	private Direction hunterDirection = Direction.EAST;
 	private int numArrows = 5;
+	private int maxArrows = numArrows;
+	private int wumpiKilled = 0;
 	private Point goldPosition = new Point(-1, -1);
 	private boolean hasGold = false;
 	private boolean wumpusAlive = true;
@@ -132,23 +134,14 @@ public class HunterWorld {
 
 		// Alle möglichen Serverrückmeldungen:
 
-		if (actionEffect == HunterActionEffect.GAME_OVER) {
-			// Das Spiel ist verloren
-			// TODO : Ausgabe von allen gefragete Information von der Aufgabestellung.
-			this.nextAction = HunterAction.QUIT_GAME;
-		}
 
 		if (actionEffect == HunterActionEffect.BUMPED_INTO_WALL) {
 			this.setWallInToView(this.hunterPosition, this.hunterDirection);
 		}
 
-		if (actionEffect == HunterActionEffect.BUMPED_INTO_HUNTER) {
-			// Nur bei Multiplayermodus
-			// Letzte Bewegungsaktion war ein Zusammenstoß einem weiteren Hunter
-		}
-
 		if (actionEffect == HunterActionEffect.WUMPUS_KILLED) {
 			this.wumpusAlive = false;
+			++wumpiKilled;
 		}
 
 		/*
@@ -240,6 +233,13 @@ public class HunterWorld {
 		this.nextAction = this.bufferActions.remove();
 
 		print();
+
+		if (actionEffect == HunterActionEffect.GAME_OVER) {
+			// Das Spiel ist verloren
+			// TODO : Ausgabe von allen gefragete Information von der Aufgabestellung.
+			this.nextAction = HunterAction.QUIT_GAME;
+			printQuitGame();
+		}
 	}
 
 	/**
@@ -335,7 +335,7 @@ public class HunterWorld {
 	 */
 	public void print() {
 		String out = "HUNTER_WORLD\n{ hunterPosition: " + hunterPosition + ", hunterDirection: " + hunterDirection
-				+ ", goldPosition: " + goldPosition + ", hasGold: " + hasGold + ", numArrows: " + numArrows
+				+ ", goldPosition: " + goldPosition + ", hasGold: " + hasGold + ", Anzahl Pfeile"  + ", arrow shot: " + (maxArrows - numArrows)
 				+ ", wumpusAlive: " + wumpusAlive + " }\n";
 
 		int rows = view.size();
@@ -352,6 +352,13 @@ public class HunterWorld {
 			out += "\n";
 		}
 
+		System.out.println(out);
+	}
+
+	public void printQuitGame(){
+		String gold = (hasGold) ? "Ja" : "Nein";
+		String out = "Anzahl Pfeile: " + maxArrows  + ", Pfeile geschossen: " + (maxArrows - numArrows) + " Wumpi getötet: " + wumpiKilled
+				+ " Gold gefunden?: " + gold;
 		System.out.println(out);
 	}
 
@@ -381,6 +388,22 @@ public class HunterWorld {
 
 	}
 
+	private void setProbabilityOfCell(CellType cellType, int x, int y){
+		CellInfo targetWall = this.get(x, y);
+		if (targetWall != null) {
+			if (cellType == CellType.BREEZE) {
+				targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
+			} else if (cellType == CellType.EMPTY) {
+				targetWall.setProbabilityPit(0.0);
+			}
+		} else {
+			if (cellType == CellType.BREEZE) {
+				this.set(x, y, new CellInfo(x, y, 50.0));
+			} else if (cellType == CellType.EMPTY) {
+				this.set(x, y, new CellInfo(x, y, 0.0));
+			}
+		}
+	}
 	/**
 	 * Aktulisiert bzw. setzt passende CellInfo von Typ Wall rund um den Aktuelle
 	 * Position der Hunter.
@@ -389,91 +412,26 @@ public class HunterWorld {
 	 */
 	private void setProbabilityAllAroundCell(CellType cellType) {
 		// WEST
-		{
-			int x = this.hunterPosition.getX() - 1;
-			int y = this.hunterPosition.getY();
-			if (x > 0) {
-				CellInfo targetWall = this.get(x, y);
-				if (targetWall != null) {
-					if (cellType == CellType.BREEZE) {
-						targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
-					} else if (cellType == CellType.EMPTY) {
-						targetWall.setProbabilityPit(0.0);
-					}
-				} else {
-					if (cellType == CellType.BREEZE) {
-						this.set(x, y, new CellInfo(x, y, 50.0, 0.0));
-					} else if (cellType == CellType.EMPTY) {
-						this.set(x, y, new CellInfo(x, y, 0.0, 0.0));
-					}
-				}
-			}
-		}
+		int x = this.hunterPosition.getX() - 1;
+		int y = this.hunterPosition.getY();
+		if (x > 0)
+			setProbabilityOfCell(cellType, x, y);
 
 		// NORTH
-		{
-			int x = this.hunterPosition.getX();
-			int y = this.hunterPosition.getY() - 1;
-			if (y > 0) {
-				CellInfo targetWall = this.get(x, y);
-				if (targetWall != null) {
-					if (cellType == CellType.BREEZE) {
-						targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
-					} else if (cellType == CellType.EMPTY) {
-						targetWall.setProbabilityPit(0.0);
-					}
-
-				} else {
-					if (cellType == CellType.BREEZE) {
-						this.set(x, y, new CellInfo(x, y, 50.0, 0.0));
-					} else if (cellType == CellType.EMPTY) {
-						this.set(x, y, new CellInfo(x, y, 0.0, 0.0));
-					}
-				}
-			}
-		}
+		x = this.hunterPosition.getX();
+		y = this.hunterPosition.getY() - 1;
+		if (y > 0)
+			setProbabilityOfCell(cellType, x, y);
 
 		// EAST
-		{
-			int x = this.hunterPosition.getX() + 1;
-			int y = this.hunterPosition.getY();
-			CellInfo targetWall = this.get(x, y);
-			if (targetWall != null) {
-				if (cellType == CellType.BREEZE) {
-					targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
-				} else if (cellType == CellType.EMPTY) {
-					targetWall.setProbabilityPit(0.0);
-				}
-
-			} else {
-				if (cellType == CellType.BREEZE) {
-					this.set(x, y, new CellInfo(x, y, 50.0, 0.0));
-				} else if (cellType == CellType.EMPTY) {
-					this.set(x, y, new CellInfo(x, y, 0.0, 0.0));
-				}
-			}
-		}
+		x = this.hunterPosition.getX() + 1;
+		y = this.hunterPosition.getY();
+		setProbabilityOfCell(cellType, x, y);
 
 		// SOUTH
-		{
-			int x = this.hunterPosition.getX();
-			int y = this.hunterPosition.getY() + 1;
-			CellInfo targetWall = this.get(x, y);
-			if (targetWall != null) {
-				if (cellType == CellType.BREEZE) {
-					targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
-				} else if (cellType == CellType.EMPTY) {
-					targetWall.setProbabilityPit(0.0);
-				}
-
-			} else {
-				if (cellType == CellType.BREEZE) {
-					this.set(x, y, new CellInfo(x, y, 50.0, 0.0));
-				} else if (cellType == CellType.EMPTY) {
-					this.set(x, y, new CellInfo(x, y, 0.0, 0.0));
-				}
-			}
-		}
+		x = this.hunterPosition.getX();
+		y = this.hunterPosition.getY() + 1;
+		setProbabilityOfCell(cellType, x, y);
 
 		/**
 		 * Nach alle Anderung hier wird die wallList noch sortiert damit die am

@@ -24,7 +24,7 @@ public class CellInfo
      * Hier wird auch alle CellInfo von Typ WALL in einer unknownCells gespeichert.
      * Die Koordinaten x und y werden genutzt um ein "Wall" Zelle als target zu sezten, und dorthin gehen.
      */
-	public CellInfo(int x, int y, double probabilityPit, double probabilityWumpus) {
+	public CellInfo(int x, int y, double probabilityPit) {
 		this.type = CellType.WALL;
 		this.position = new Point(x, y);
 		this.probabilityPit = probabilityPit;
