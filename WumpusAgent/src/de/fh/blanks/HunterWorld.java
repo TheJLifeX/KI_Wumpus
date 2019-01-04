@@ -173,7 +173,8 @@ public class HunterWorld {
 			}
 
 			// Letzte Bewegungsaktion war gültig
-			if (this.previousAction != HunterAction.TURN_LEFT || this.previousAction != HunterAction.TURN_RIGHT) {
+			if (this.previousAction == HunterAction.GO_FORWARD || this.previousAction == HunterAction.GRAB
+					|| this.previousAction == HunterAction.SHOOT) {
 				if (percept.isBreeze() || percept.isStench() || percept.isGlitter()) {
 
 					// TODO: falls beide Bedingung true sind, dann zwei typ in der Cell speichern.
@@ -198,7 +199,7 @@ public class HunterWorld {
 				|| (!this.wumpusAlive && this.hasGold)) {
 			this.quitGame();
 		}
-		
+
 		if (bufferActions.isEmpty()) {
 			this.determinateNextActions();
 		}
@@ -220,13 +221,12 @@ public class HunterWorld {
 				if (g.getValue() == 3) {
 					this.bufferActions.push(HunterAction.SIT);
 				} else if (g.getValue() == 2 || g.getValue() == 1) {
-					
-					if(this.previousStenchRadar == null || this.previousStenchRadar.get(g.getKey()) == null) {
+
+					if (this.previousStenchRadar == null || this.previousStenchRadar.get(g.getKey()) == null) {
 						this.bufferActions.push(HunterAction.SIT);
 						break;
 					}
-						
-					
+
 					if (percept.isRumble() && g.getValue() < this.previousStenchRadar.get(g.getKey())) {
 						this.bufferActions.push(HunterAction.SHOOT);
 					} else {
