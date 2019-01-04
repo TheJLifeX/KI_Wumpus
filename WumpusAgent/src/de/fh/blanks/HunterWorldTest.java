@@ -20,7 +20,7 @@ public class HunterWorldTest {
 		world.set(2, 3, new CellInfo(CellType.BREEZE));
 		world.set(2, 3, new CellInfo(CellType.STENCH));
 		
-		world.set(2, 4, new CellInfo(CellType.WALL));
+		world.set(2, 4, new CellInfo(CellType.UNKWON));
 		world.set(3, 4, new CellInfo(CellType.BREEZE));
 		world.set(4, 4, new CellInfo(CellType.BREEZE));
 

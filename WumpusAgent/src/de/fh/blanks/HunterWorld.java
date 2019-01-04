@@ -20,9 +20,12 @@ public class HunterWorld {
 	private Point hunterPosition = new Point(1, 1);
 	private Direction hunterDirection = Direction.EAST;
 	private int numArrows = 5;
+	private int maxArrows = numArrows;
+	private int wumpiKilled = 0;
 	private Point goldPosition = new Point(-1, -1);
 	private boolean hasGold = false;
 	private boolean wumpusAlive = true;
+	private LinkedList<Point> wallList = new LinkedList<>();
 
 	/**
 	 * Hier wird einen Puffer von Actions gespeichert. Zum beispiel wenn der HUNTER
@@ -132,24 +135,15 @@ public class HunterWorld {
 
 		// Alle möglichen Serverrückmeldungen:
 
-		if (actionEffect == HunterActionEffect.GAME_OVER) {
-			// Das Spiel ist verloren
-			// TODO : Ausgabe von allen gefragete Information von der Aufgabestellung.
-			this.nextAction = HunterAction.QUIT_GAME;
-		}
-
 		if (actionEffect == HunterActionEffect.BUMPED_INTO_WALL) {
 			this.setWallInToView(this.hunterPosition, this.hunterDirection);
 		}
 
-		if (actionEffect == HunterActionEffect.BUMPED_INTO_HUNTER) {
-			// Nur bei Multiplayermodus
-			// Letzte Bewegungsaktion war ein Zusammenstoß einem weiteren Hunter
-		}
-
 		if (actionEffect == HunterActionEffect.WUMPUS_KILLED) {
 			this.wumpusAlive = false;
+			++wumpiKilled;
 		}
+
 
 		/*
 		 * Mögliche Percepts Über die Welt erhält der Wumpushunter:
@@ -173,15 +167,14 @@ public class HunterWorld {
 			}
 
 			// Letzte Bewegungsaktion war gültig
-			if (this.previousAction != HunterAction.TURN_LEFT || this.previousAction != HunterAction.TURN_RIGHT) {
+			if (this.previousAction == HunterAction.GO_FORWARD || this.previousAction == HunterAction.GRAB
+					|| this.previousAction == HunterAction.SHOOT
+					|| actionEffect == HunterActionEffect.GAME_INITIALIZED) {
+
 				if (percept.isBreeze() || percept.isStench() || percept.isGlitter()) {
 
-					// TODO: falls beide Bedingung true sind, dann zwei typ in der Cell speichern.
 					if (percept.isBreeze()) {
 						this.updateCell(CellType.BREEZE);
-					}
-					if (percept.isStench()) {
-						this.updateCell(CellType.STENCH);
 					}
 					if (percept.isGlitter()) {
 						this.goldPosition.set(this.hunterPosition);
@@ -198,9 +191,9 @@ public class HunterWorld {
 				|| (!this.wumpusAlive && this.hasGold)) {
 			this.quitGame();
 		}
-		
+
 		if (bufferActions.isEmpty()) {
-			this.determinateNextActions();
+			this.exploreWorld();
 		}
 
 		/*
@@ -212,33 +205,44 @@ public class HunterWorld {
 
 		Hashtable<Integer, Integer> stenchRadar = percept.getWumpusStenchRadar();
 
-		// Gebe alle riechbaren Wumpis aus
+
+        // Gebe alle riechbaren Wumpis aus;
 		if (stenchRadar.isEmpty()) {
 			System.out.println("Kein Wumpi zu riechen");
 		} else {
-			for (Map.Entry<Integer, Integer> g : stenchRadar.entrySet()) {
-				if (g.getValue() == 3) {
+			if (this.wallList.contains(this.getVirtualPositionHunter(hunterPosition, hunterDirection))) {
+				// entweder turn_left oder turn_right
+				this.bufferActions.push(HunterAction.TURN_LEFT);
+			} else {
+				Map.Entry<Integer, Integer> entry = stenchRadar.entrySet().iterator().next();
+				int key = (int) entry.getKey();
+				int value = (int) entry.getValue();
+
+				if (value == 3) {
 					this.bufferActions.push(HunterAction.SIT);
-				} else if (g.getValue() == 2 || g.getValue() == 1) {
-					
-					if(this.previousStenchRadar == null || this.previousStenchRadar.get(g.getKey()) == null) {
+				} else if (value == 2 || value == 1) {
+
+					if (this.previousStenchRadar == null || this.previousStenchRadar.get(key) == null) {
 						this.bufferActions.push(HunterAction.SIT);
-						break;
-					}
-						
-					
-					if (percept.isRumble() && g.getValue() < this.previousStenchRadar.get(g.getKey())) {
+					} else if (percept.isRumble() && value < this.previousStenchRadar.get(key)) {
 						this.bufferActions.push(HunterAction.SHOOT);
+						if (numArrows > 0)
+							--numArrows;
 					} else {
 						this.bufferActions.push(HunterAction.SIT);
 					}
 				}
-				break;
 			}
 			this.previousStenchRadar = stenchRadar;
 		}
 
 		this.nextAction = this.bufferActions.remove();
+
+		if (actionEffect == HunterActionEffect.GAME_OVER) {
+			// Das Spiel ist zum Ende.
+			this.nextAction = HunterAction.QUIT_GAME;
+			printQuitGame();
+		}
 	}
 
 	/**
@@ -259,8 +263,7 @@ public class HunterWorld {
 
 		try {
 			ArrayList<CellInfo> row = this.view.get(y);
-			CellInfo cellInfo = row.get(x);
-			return cellInfo;
+			return row.get(x);
 
 		} catch (IndexOutOfBoundsException e) {
 			return null;
@@ -282,8 +285,7 @@ public class HunterWorld {
 
 		try {
 			ArrayList<CellInfo> row = this.view.get(y);
-			CellInfo previousCellInfo = row.set(x, newCellInfo);
-			return previousCellInfo;
+			return row.set(x, newCellInfo);
 
 		} catch (IndexOutOfBoundsException e) {
 			this.add(x, y, newCellInfo);
@@ -336,7 +338,7 @@ public class HunterWorld {
 	 */
 	public void print() {
 		String out = "HUNTER_WORLD\n{ hunterPosition: " + hunterPosition + ", hunterDirection: " + hunterDirection
-				+ ", goldPosition: " + goldPosition + ", hasGold: " + hasGold + ", numArrows: " + numArrows
+				+ ", goldPosition: " + goldPosition + ", hasGold: " + hasGold + ", Anzahl Pfeile"  + ", arrow shot: " + (maxArrows - numArrows)
 				+ ", wumpusAlive: " + wumpusAlive + " }\n";
 
 		int rows = view.size();
@@ -356,6 +358,13 @@ public class HunterWorld {
 		System.out.println(out);
 	}
 
+	public void printQuitGame(){
+		String gold = (hasGold) ? "Ja" : "Nein";
+		String out = "Anzahl Pfeile: " + maxArrows  + ", Pfeile geschossen: " + (maxArrows - numArrows) + " Wumpi getötet: " + wumpiKilled
+				+ " Gold gefunden?: " + gold;
+		System.out.println(out);
+	}
+
 	public Direction getHunterDirection() {
 		return hunterDirection;
 	}
@@ -371,8 +380,7 @@ public class HunterWorld {
 			this.goldPosition.set(this.hunterPosition.getX(), this.hunterPosition.getY());
 		}
 
-		CellInfo previousCellInfo = this.set(this.hunterPosition.getX(), this.hunterPosition.getY(),
-				new CellInfo(cellType));
+		CellInfo previousCellInfo = this.set(this.hunterPosition.getX(), this.hunterPosition.getY(), new CellInfo(cellType));
 
 		// prüfe auf null wegen erster Aufruf( game initialized )
 		// prüfe auf CellType.TARGET :: Methode wird aufgerufen, nur wenn der Hunter
@@ -383,134 +391,65 @@ public class HunterWorld {
 
 	}
 
+	private void setProbabilityOfCell(CellType cellType, int x, int y){
+		CellInfo targetUnkwonCell = this.get(x, y);
+		if (targetUnkwonCell != null) {
+			if (cellType == CellType.BREEZE) {
+				targetUnkwonCell.setProbabilityPit(targetUnkwonCell.getProbabilityPit() + 60.0);
+			} else if (cellType == CellType.EMPTY) {
+				targetUnkwonCell.setProbabilityPit(0.0);
+			}
+		} else {
+			if (cellType == CellType.BREEZE) {
+				this.set(x, y, new CellInfo(x, y, 50.0));
+			} else if (cellType == CellType.EMPTY) {
+				this.set(x, y, new CellInfo(x, y, 0.0));
+			}
+		}
+	}
 	/**
-	 * Aktulisiert bzw. setzt passende CellInfo von Typ Wall rund um den Aktuelle
+	 * Aktulisiert bzw. setzt passende CellInfo von Typ "Unkwon" Cell rund um den Aktuelle
 	 * Position der Hunter.
 	 * 
 	 * @param cellType
 	 */
 	private void setProbabilityAllAroundCell(CellType cellType) {
 		// WEST
-		{
-			int x = this.hunterPosition.getX() - 1;
-			int y = this.hunterPosition.getY();
-			if (x > 0) {
-				CellInfo targetWall = this.get(x, y);
-				if (targetWall != null) {
-					if (cellType == CellType.BREEZE) {
-						targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
-					} else if (cellType == CellType.STENCH) {
-						targetWall.setProbabilityWumpus(targetWall.getProbabilityWumpus() + 60.0);
-					} else if (cellType == CellType.EMPTY) {
-						targetWall.setProbabilityPit(0.0);
-						targetWall.setProbabilityWumpus(0.0);
-					}
-				} else {
-					if (cellType == CellType.BREEZE) {
-						this.set(x, y, new CellInfo(x, y, 50.0, 0.0));
-					} else if (cellType == CellType.STENCH) {
-						this.set(x, y, new CellInfo(x, y, 0.0, 50.0));
-					} else if (cellType == CellType.EMPTY) {
-						this.set(x, y, new CellInfo(x, y, 0.0, 0.0));
-					}
-				}
-			}
-		}
+		int x = this.hunterPosition.getX() - 1;
+		int y = this.hunterPosition.getY();
+		if (x > 0)
+			setProbabilityOfCell(cellType, x, y);
 
 		// NORTH
-		{
-			int x = this.hunterPosition.getX();
-			int y = this.hunterPosition.getY() - 1;
-			if (y > 0) {
-				CellInfo targetWall = this.get(x, y);
-				if (targetWall != null) {
-					if (cellType == CellType.BREEZE) {
-						targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
-					} else if (cellType == CellType.STENCH) {
-						targetWall.setProbabilityWumpus(targetWall.getProbabilityWumpus() + 60.0);
-					} else if (cellType == CellType.EMPTY) {
-						targetWall.setProbabilityPit(0.0);
-						targetWall.setProbabilityWumpus(0.0);
-					}
-
-				} else {
-					if (cellType == CellType.BREEZE) {
-						this.set(x, y, new CellInfo(x, y, 50.0, 0.0));
-					} else if (cellType == CellType.STENCH) {
-						this.set(x, y, new CellInfo(x, y, 0.0, 50.0));
-					} else if (cellType == CellType.EMPTY) {
-						this.set(x, y, new CellInfo(x, y, 0.0, 0.0));
-					}
-				}
-			}
-		}
+		x = this.hunterPosition.getX();
+		y = this.hunterPosition.getY() - 1;
+		if (y > 0)
+			setProbabilityOfCell(cellType, x, y);
 
 		// EAST
-		{
-			int x = this.hunterPosition.getX() + 1;
-			int y = this.hunterPosition.getY();
-			CellInfo targetWall = this.get(x, y);
-			if (targetWall != null) {
-				if (cellType == CellType.BREEZE) {
-					targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
-				} else if (cellType == CellType.STENCH) {
-					targetWall.setProbabilityWumpus(targetWall.getProbabilityWumpus() + 60.0);
-				} else if (cellType == CellType.EMPTY) {
-					targetWall.setProbabilityPit(0.0);
-					targetWall.setProbabilityWumpus(0.0);
-				}
-
-			} else {
-				if (cellType == CellType.BREEZE) {
-					this.set(x, y, new CellInfo(x, y, 50.0, 0.0));
-				} else if (cellType == CellType.STENCH) {
-					this.set(x, y, new CellInfo(x, y, 0.0, 50.0));
-				} else if (cellType == CellType.EMPTY) {
-					this.set(x, y, new CellInfo(x, y, 0.0, 0.0));
-				}
-			}
-		}
+		x = this.hunterPosition.getX() + 1;
+		y = this.hunterPosition.getY();
+		setProbabilityOfCell(cellType, x, y);
 
 		// SOUTH
-		{
-			int x = this.hunterPosition.getX();
-			int y = this.hunterPosition.getY() + 1;
-			CellInfo targetWall = this.get(x, y);
-			if (targetWall != null) {
-				if (cellType == CellType.BREEZE) {
-					targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
-				} else if (cellType == CellType.STENCH) {
-					targetWall.setProbabilityWumpus(targetWall.getProbabilityWumpus() + 60.0);
-				} else if (cellType == CellType.EMPTY) {
-					targetWall.setProbabilityPit(0.0);
-					targetWall.setProbabilityWumpus(0.0);
-				}
-
-			} else {
-				if (cellType == CellType.BREEZE) {
-					this.set(x, y, new CellInfo(x, y, 50.0, 0.0));
-				} else if (cellType == CellType.STENCH) {
-					this.set(x, y, new CellInfo(x, y, 0.0, 50.0));
-				} else if (cellType == CellType.EMPTY) {
-					this.set(x, y, new CellInfo(x, y, 0.0, 0.0));
-				}
-			}
-		}
+		x = this.hunterPosition.getX();
+		y = this.hunterPosition.getY() + 1;
+		setProbabilityOfCell(cellType, x, y);
 
 		/**
-		 * Nach alle Anderung hier wird die wallList noch sortiert damit die am
-		 * wenigsten gefährliche "Wall" am Anfang der Liste stehen.
+		 * Nach alle Aenderung hier wird die UnkwonCells sortiert damit die am
+		 * wenigsten gefährliche "UNKWON" Cell am Anfang der Liste stehen.
 		 */
-		CellInfo.sortWallList();
+		CellInfo.sortUnkwonCells();
 	}
 
 	/**
 	 * Bestimmt die nächsten Actions und speichert die in der bufferActions list.
 	 */
-	public void determinateNextActions() {
+	public void exploreWorld() {
 
 		try {
-			CellInfo targetCell = CellInfo.getWallList().remove();
+			CellInfo targetCell = CellInfo.getUnknownCells().remove();
 			if (targetCell.getEstimate() >= 110) {
 				System.out.println("Ende :: sichere Welt komplett entdeckt!");
 				this.quitGame();
@@ -530,30 +469,35 @@ public class HunterWorld {
 	/**
 	 * Setzt eine entdeckte Wand-Zelle in der Welt.
 	 * 
-	 * @param hunterPosition :: aktuelle hunterPosition.
+	 * @param hunterPosition  :: aktuelle hunterPosition.
 	 * @param hunterDirection :: aktuelle hunterDirection.
 	 */
 	private void setWallInToView(Point hunterPosition, Direction hunterDirection) {
-		Point newHunterPosition = new Point(hunterPosition.getX(), hunterPosition.getY());
+		Point virtualHunterPosition = getVirtualPositionHunter(hunterPosition, hunterDirection);
+		this.set(virtualHunterPosition.getX(), virtualHunterPosition.getY(), null);
+		this.wallList.add(virtualHunterPosition);
+	}
+	
+	private Point getVirtualPositionHunter(Point hunterPosition, Direction hunterDirection) {
+		Point virtualHunterPosition = new Point(hunterPosition.getX(), hunterPosition.getY());
 
 		switch (hunterDirection) {
 		case NORTH:
-			newHunterPosition.setY(newHunterPosition.getY() - 1);
+			virtualHunterPosition.setY(virtualHunterPosition.getY() - 1);
 			break;
 		case EAST:
-			newHunterPosition.setX(newHunterPosition.getX() + 1);
+			virtualHunterPosition.setX(virtualHunterPosition.getX() + 1);
 			break;
 		case SOUTH:
-			newHunterPosition.setY(newHunterPosition.getY() + 1);
+			virtualHunterPosition.setY(virtualHunterPosition.getY() + 1);
 			break;
 		case WEST:
-			newHunterPosition.setX(newHunterPosition.getX() - 1);
+			virtualHunterPosition.setX(virtualHunterPosition.getX() - 1);
 			break;
 		default:
 			throw new IllegalArgumentException("Unzulässige HunterAction");
 		}
-
-		this.set(newHunterPosition.getX(), newHunterPosition.getY(), null);
+		return virtualHunterPosition;
 	}
 	
 	public ArrayList<ArrayList<CellInfo>> getView() {

@@ -8,33 +8,31 @@ public class CellInfo
 	private CellType type;
 	private Point position;
     private double probabilityPit;
-    private double probabilityWumpus;
-    
+
     /**
      * Hier sind alle noch unbekannte Zelle gespeichert, die rund um den bekannnten Welt liegen.
      */
-	private static LinkedList<CellInfo> wallList = new LinkedList<>();
+	private static LinkedList<CellInfo> unknownCells = new LinkedList<>();
 
     public CellInfo(CellType type){
     	this.type = type;
     }
     
     /**
-     * Konstrucktor für CellInfo von Typ WALL.
+     * Konstrucktor fï¿½r CellInfo von Typ WALL.
      * 
-     * Hier wird auch alle CellInfo von Typ WALL in einer wallList gespeichert.
+     * Hier wird auch alle CellInfo von Typ WALL in einer unknownCells gespeichert.
      * Die Koordinaten x und y werden genutzt um ein "Wall" Zelle als target zu sezten, und dorthin gehen.
      */
-	public CellInfo(int x, int y, double probabilityPit, double probabilityWumpus) {
-		this.type = CellType.WALL;
+	public CellInfo(int x, int y, double probabilityPit) {
+		this.type = CellType.UNKWON;
 		this.position = new Point(x, y);
 		this.probabilityPit = probabilityPit;
-		this.probabilityWumpus = probabilityWumpus;
-		CellInfo.wallList.add(0, this);
+		CellInfo.unknownCells.add(0, this);
 	}
 
 	public Double getEstimate() {
-		return this.probabilityPit + this.probabilityWumpus;
+		return this.probabilityPit;
 	}
 	
 	public Point getPosition() {
@@ -53,14 +51,6 @@ public class CellInfo
 		this.probabilityPit = probabilityPit;
 	}
 
-	public double getProbabilityWumpus() {
-		return probabilityWumpus;
-	}
-
-	public void setProbabilityWumpus(double probabilityWumpus) {
-		this.probabilityWumpus = probabilityWumpus;
-	}
-	
 	public CellType getType() {
 		return type;
 	}
@@ -71,20 +61,19 @@ public class CellInfo
 	
 	@Override
 	public String toString() {
-		if (this.type != CellType.WALL) {
+		if (this.type != CellType.UNKWON) {
 			return "(" + type.name() + ")";
 		} else {
-			return "(" + type.name().substring(0, 2) + " pit:" + this.probabilityPit + " wum:" + this.probabilityWumpus
-					+ ")";
+			return "(" + type.name().substring(0, 2) + " pit:" + this.probabilityPit + ")";
 		}
 	}
     
-	public static LinkedList<CellInfo> getWallList(){
-		return CellInfo.wallList;
+	public static LinkedList<CellInfo> getUnknownCells(){
+		return CellInfo.unknownCells;
 	}
 	
-	public static void sortWallList() {
-		CellInfo.wallList.sort(new Comparator<CellInfo>() {
+	public static void sortUnkwonCells() {
+		CellInfo.unknownCells.sort(new Comparator<CellInfo>() {
 			@Override
 			public int compare(CellInfo c1, CellInfo c2) {
 				return Double.compare(c1.getEstimate(), c2.getEstimate());
