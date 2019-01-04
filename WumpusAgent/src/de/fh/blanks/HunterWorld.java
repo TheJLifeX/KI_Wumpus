@@ -14,6 +14,7 @@ import java.util.NoSuchElementException;
 public class HunterWorld {
 	private ArrayList<ArrayList<CellInfo>> view;
 
+	private HunterPercept percept;
 	private HunterAction previousAction;
 	private HunterAction nextAction = HunterAction.GO_FORWARD;
 	private Hashtable<Integer, Integer> previousStenchRadar;
@@ -26,6 +27,7 @@ public class HunterWorld {
 	private boolean hasGold = false;
 	private boolean wumpusAlive = true;
 	private LinkedList<Point> wallList = new LinkedList<>();
+	private LinkedList<Point> heuristicWallList = new LinkedList<>();
 
 	/**
 	 * Hier wird einen Puffer von Actions gespeichert. Zum beispiel wenn der HUNTER
@@ -114,7 +116,31 @@ public class HunterWorld {
 			break;
 		}
 	}
+	public void simpleWallHeuristic(){
+			int count = 0;
+			int xCor = 1;
+			int yCor = 1;
+			Point wall = new Point(0,0);
+			for(int i = 0; i < 4; ++i){
+				if(i % 2 == 0){
+					if(get(hunterPosition.getX() + xCor, hunterPosition.getY()).getType() != null)
+						++count;
+					else
+						wall = new Point(hunterPosition.getX() + xCor, hunterPosition.getY());
+					xCor -= 2;
+				}else{
+					if(get(hunterPosition.getX(), hunterPosition.getY() + yCor).getType() != null)
+						++count;
+					else
+						wall = new Point(hunterPosition.getX(), hunterPosition.getY() + yCor);
 
+					yCor -= 2;
+				}
+			}
+			if(count == 3){
+				heuristicWallList.add(wall);
+			}
+	}
 	/**
 	 * Wichtig zu verstehen: Die updateState Methode wird zuerst ausgeführt, dann
 	 * die action Methode.
@@ -125,6 +151,7 @@ public class HunterWorld {
 	 *        durch unsere letzte Action.
 	 */
 	public void updateState(HunterPercept percept, HunterActionEffect actionEffect, HunterAction previousAction) {
+		this.percept = percept;
 		/**
 		 * Je nach Sichtbarkeit & Schwierigkeitsgrad (laut Serverkonfiguration) aktuelle
 		 * Wahrnehmung des Hunters. Beim Wumpus erhalten Sie je nach Level mehr oder
@@ -143,6 +170,7 @@ public class HunterWorld {
 			this.wumpusAlive = false;
 			++wumpiKilled;
 		}
+
 
 		/*
 		 * Mögliche Percepts Über die Welt erhält der Wumpushunter:
@@ -169,6 +197,11 @@ public class HunterWorld {
 			if (this.previousAction == HunterAction.GO_FORWARD || this.previousAction == HunterAction.GRAB
 					|| this.previousAction == HunterAction.SHOOT
 					|| actionEffect == HunterActionEffect.GAME_INITIALIZED) {
+
+			    if(percept.isBump()){
+			    	simpleWallHeuristic();
+				}
+
 				if (percept.isBreeze() || percept.isStench() || percept.isGlitter()) {
 
 					if (percept.isBreeze()) {
@@ -203,7 +236,8 @@ public class HunterWorld {
 
 		Hashtable<Integer, Integer> stenchRadar = percept.getWumpusStenchRadar();
 
-		// Gebe alle riechbaren Wumpis aus;
+
+        // Gebe alle riechbaren Wumpis aus;
 		if (stenchRadar.isEmpty()) {
 			System.out.println("Kein Wumpi zu riechen");
 		} else {
