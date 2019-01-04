@@ -192,7 +192,7 @@ public class HunterWorld {
 		}
 
 		if (bufferActions.isEmpty()) {
-			this.determineNextActions();
+			this.exploreWorld();
 		}
 
 		/*
@@ -443,7 +443,7 @@ public class HunterWorld {
 	/**
 	 * Bestimmt die nächsten Actions und speichert die in der bufferActions list.
 	 */
-	public void determineNextActions() {
+	public void exploreWorld() {
 
 		try {
 			CellInfo targetCell = CellInfo.getUnknownCells().remove();
