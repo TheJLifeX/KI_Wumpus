@@ -1,6 +1,5 @@
 package de.fh.blanks;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 
@@ -12,18 +11,18 @@ public class CellInfo
     private double probabilityWumpus;
     
     /**
-     * Hier sind alle noch unbekannte Zelle gespeichert, die rund um die bekannte Welt liegen.
+     * Hier sind alle noch unbekannte Zelle gespeichert, die rund um den bekannnten Welt liegen.
      */
-	private static LinkedList<CellInfo> unknownCells = new LinkedList<>();
+	private static LinkedList<CellInfo> wallList = new LinkedList<>();
 
     public CellInfo(CellType type){
     	this.type = type;
     }
     
     /**
-     * Konstrucktor fï¿½r CellInfo von Typ WALL.
+     * Konstrucktor für CellInfo von Typ WALL.
      * 
-     * Hier wird auch alle CellInfo von Typ WALL in einer unknownCells gespeichert.
+     * Hier wird auch alle CellInfo von Typ WALL in einer wallList gespeichert.
      * Die Koordinaten x und y werden genutzt um ein "Wall" Zelle als target zu sezten, und dorthin gehen.
      */
 	public CellInfo(int x, int y, double probabilityPit, double probabilityWumpus) {
@@ -31,13 +30,9 @@ public class CellInfo
 		this.position = new Point(x, y);
 		this.probabilityPit = probabilityPit;
 		this.probabilityWumpus = probabilityWumpus;
-		CellInfo.unknownCells.add(this);
+		CellInfo.wallList.add(0, this);
 	}
 
-	/**
-	 * MORITZ: Was ist der Sinn hinter dem Estimate ?
-	 * @return probabilityPit + probabilityWumpus
-	 */
 	public Double getEstimate() {
 		return this.probabilityPit + this.probabilityWumpus;
 	}
@@ -84,30 +79,16 @@ public class CellInfo
 		}
 	}
     
-	public static LinkedList<CellInfo> getUnknownCells(){
-		return CellInfo.unknownCells;
+	public static LinkedList<CellInfo> getWallList(){
+		return CellInfo.wallList;
 	}
 	
-	/**
-	 * Sorts Unknown Cells in ascending order of their Estimates.
-	 */
-	public static void sortUnknownCells_ascending()
-	{
-		CellInfo.unknownCells.sort(new Comparator<CellInfo>()
-		{
+	public static void sortWallList() {
+		CellInfo.wallList.sort(new Comparator<CellInfo>() {
 			@Override
-			public int compare(CellInfo c1, CellInfo c2) 
-			{
+			public int compare(CellInfo c1, CellInfo c2) {
 				return Double.compare(c1.getEstimate(), c2.getEstimate());
 			}
 		});
-	}
-
-	/**
-	 * Randomly Shuffles Unknown Cells
-	 */
-	public static void shuffleUnknownCells()
-	{
-		Collections.shuffle(CellInfo.unknownCells);
 	}
 }
