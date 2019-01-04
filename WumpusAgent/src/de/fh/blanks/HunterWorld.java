@@ -174,7 +174,8 @@ public class HunterWorld {
 
 			// Letzte Bewegungsaktion war gültig
 			if (this.previousAction == HunterAction.GO_FORWARD || this.previousAction == HunterAction.GRAB
-					|| this.previousAction == HunterAction.SHOOT) {
+					|| this.previousAction == HunterAction.SHOOT
+					|| actionEffect == HunterActionEffect.GAME_INITIALIZED) {
 				if (percept.isBreeze() || percept.isStench() || percept.isGlitter()) {
 
 					// TODO: falls beide Bedingung true sind, dann zwei typ in der Cell speichern.
