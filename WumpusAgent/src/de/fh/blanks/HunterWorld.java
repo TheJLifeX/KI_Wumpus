@@ -26,7 +26,6 @@ public class HunterWorld {
 	private boolean hasGold = false;
 	private boolean wumpusAlive = true;
 	private LinkedList<Point> wallList = new LinkedList<>();
-	private LinkedList<Point> heuristicWallList = new LinkedList<>();
 
 	/**
 	 * Hier wird einen Puffer von Actions gespeichert. Zum beispiel wenn der HUNTER
@@ -115,31 +114,7 @@ public class HunterWorld {
 			break;
 		}
 	}
-	public void simpleWallHeuristic(){
-			int count = 0;
-			int xCor = 1;
-			int yCor = 1;
-			Point wall = new Point(0,0);
-			for(int i = 1; i <= 4; ++i){
-				if(i % 2 == 0){
-					if(get(hunterPosition.getX() + xCor, hunterPosition.getY()) != null)
-						++count;
-					else
-						wall = new Point(hunterPosition.getX() + xCor, hunterPosition.getY());
-					xCor -= 2;
-				}else{
-					if(get(hunterPosition.getX(), hunterPosition.getY() + yCor) != null)
-						++count;
-					else
-						wall = new Point(hunterPosition.getX(), hunterPosition.getY() + yCor);
 
-					yCor -= 2;
-				}
-			}
-			if(count == 3){
-				heuristicWallList.add(wall);
-			}
-	}
 	/**
 	 * Wichtig zu verstehen: Die updateState Methode wird zuerst ausgeführt, dann
 	 * die action Methode.
@@ -209,10 +184,6 @@ public class HunterWorld {
 				} else {
 					this.updateCell(CellType.EMPTY);
 				}
-				
-			    if(percept.isBump()){
-			    	simpleWallHeuristic();
-				}
 			}
 		}
 
@@ -266,9 +237,6 @@ public class HunterWorld {
 		}
 
 		this.nextAction = this.bufferActions.remove();
-
-		System.out.println("Wall List:");
-		this.heuristicWallList.forEach(System.out::println);
 
 		if (actionEffect == HunterActionEffect.GAME_OVER) {
 			// Das Spiel ist zum Ende.
