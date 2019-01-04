@@ -199,7 +199,7 @@ public class HunterWorld {
 		}
 
 		if (bufferActions.isEmpty()) {
-			this.determinateNextActions();
+			this.determineNextActions();
 		}
 
 		/*
@@ -261,8 +261,7 @@ public class HunterWorld {
 
 		try {
 			ArrayList<CellInfo> row = this.view.get(y);
-			CellInfo cellInfo = row.get(x);
-			return cellInfo;
+			return row.get(x);
 
 		} catch (IndexOutOfBoundsException e) {
 			return null;
@@ -284,8 +283,7 @@ public class HunterWorld {
 
 		try {
 			ArrayList<CellInfo> row = this.view.get(y);
-			CellInfo previousCellInfo = row.set(x, newCellInfo);
-			return previousCellInfo;
+			return row.set(x, newCellInfo);
 
 		} catch (IndexOutOfBoundsException e) {
 			this.add(x, y, newCellInfo);
@@ -488,7 +486,7 @@ public class HunterWorld {
 	/**
 	 * Bestimmt die nächsten Actions und speichert die in der bufferActions list.
 	 */
-	public void determinateNextActions() {
+	public void determineNextActions() {
 
 		try {
 			CellInfo targetCell = CellInfo.getUnknownCells().remove();
