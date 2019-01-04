@@ -25,6 +25,7 @@ public class HunterWorld {
 	private Point goldPosition = new Point(-1, -1);
 	private boolean hasGold = false;
 	private boolean wumpusAlive = true;
+	private LinkedList<Point> wallList = new LinkedList<>();
 
 	/**
 	 * Hier wird einen Puffer von Actions gespeichert. Zum beispiel wenn der HUNTER
@@ -134,7 +135,6 @@ public class HunterWorld {
 
 		// Alle möglichen Serverrückmeldungen:
 
-
 		if (actionEffect == HunterActionEffect.BUMPED_INTO_WALL) {
 			this.setWallInToView(this.hunterPosition, this.hunterDirection);
 		}
@@ -171,7 +171,6 @@ public class HunterWorld {
 					|| actionEffect == HunterActionEffect.GAME_INITIALIZED) {
 				if (percept.isBreeze() || percept.isStench() || percept.isGlitter()) {
 
-					// TODO: falls beide Bedingung true sind, dann zwei typ in der Cell speichern.
 					if (percept.isBreeze()) {
 						this.updateCell(CellType.BREEZE);
 					}
@@ -208,25 +207,29 @@ public class HunterWorld {
 		if (stenchRadar.isEmpty()) {
 			System.out.println("Kein Wumpi zu riechen");
 		} else {
-			Map.Entry<Integer, Integer> entry = stenchRadar.entrySet().iterator().next();
-			int key = (int) entry.getKey();
-			int value = (int) entry.getValue();
+			if (this.wallList.contains(this.getVirtualPositionHunter(hunterPosition, hunterDirection))) {
+				// entweder turn_left oder turn_right
+				this.bufferActions.push(HunterAction.TURN_LEFT);
+			} else {
+				Map.Entry<Integer, Integer> entry = stenchRadar.entrySet().iterator().next();
+				int key = (int) entry.getKey();
+				int value = (int) entry.getValue();
 
-			if (value == 3) {
-				this.bufferActions.push(HunterAction.SIT);
-			} else if (value == 2 || value == 1) {
+				if (value == 3) {
+					this.bufferActions.push(HunterAction.SIT);
+				} else if (value == 2 || value == 1) {
 
-				if (this.previousStenchRadar == null || this.previousStenchRadar.get(key) == null) {
-					this.bufferActions.push(HunterAction.SIT);
-				} else if (percept.isRumble() && value < this.previousStenchRadar.get(key)) {
-					this.bufferActions.push(HunterAction.SHOOT);
-					if (numArrows > 0)
-						--numArrows;
-				} else {
-					this.bufferActions.push(HunterAction.SIT);
+					if (this.previousStenchRadar == null || this.previousStenchRadar.get(key) == null) {
+						this.bufferActions.push(HunterAction.SIT);
+					} else if (percept.isRumble() && value < this.previousStenchRadar.get(key)) {
+						this.bufferActions.push(HunterAction.SHOOT);
+						if (numArrows > 0)
+							--numArrows;
+					} else {
+						this.bufferActions.push(HunterAction.SIT);
+					}
 				}
 			}
-
 			this.previousStenchRadar = stenchRadar;
 		}
 
@@ -235,8 +238,7 @@ public class HunterWorld {
 		print();
 
 		if (actionEffect == HunterActionEffect.GAME_OVER) {
-			// Das Spiel ist verloren
-			// TODO : Ausgabe von allen gefragete Information von der Aufgabestellung.
+			// Das Spiel ist zum Ende.
 			this.nextAction = HunterAction.QUIT_GAME;
 			printQuitGame();
 		}
@@ -466,30 +468,35 @@ public class HunterWorld {
 	/**
 	 * Setzt eine entdeckte Wand-Zelle in der Welt.
 	 * 
-	 * @param hunterPosition :: aktuelle hunterPosition.
+	 * @param hunterPosition  :: aktuelle hunterPosition.
 	 * @param hunterDirection :: aktuelle hunterDirection.
 	 */
 	private void setWallInToView(Point hunterPosition, Direction hunterDirection) {
-		Point newHunterPosition = new Point(hunterPosition.getX(), hunterPosition.getY());
+		Point virtualHunterPosition = getVirtualPositionHunter(hunterPosition, hunterDirection);
+		this.set(virtualHunterPosition.getX(), virtualHunterPosition.getY(), null);
+		this.wallList.add(virtualHunterPosition);
+	}
+	
+	private Point getVirtualPositionHunter(Point hunterPosition, Direction hunterDirection) {
+		Point virtualHunterPosition = new Point(hunterPosition.getX(), hunterPosition.getY());
 
 		switch (hunterDirection) {
 		case NORTH:
-			newHunterPosition.setY(newHunterPosition.getY() - 1);
+			virtualHunterPosition.setY(virtualHunterPosition.getY() - 1);
 			break;
 		case EAST:
-			newHunterPosition.setX(newHunterPosition.getX() + 1);
+			virtualHunterPosition.setX(virtualHunterPosition.getX() + 1);
 			break;
 		case SOUTH:
-			newHunterPosition.setY(newHunterPosition.getY() + 1);
+			virtualHunterPosition.setY(virtualHunterPosition.getY() + 1);
 			break;
 		case WEST:
-			newHunterPosition.setX(newHunterPosition.getX() - 1);
+			virtualHunterPosition.setX(virtualHunterPosition.getX() - 1);
 			break;
 		default:
 			throw new IllegalArgumentException("Unzulässige HunterAction");
 		}
-
-		this.set(newHunterPosition.getX(), newHunterPosition.getY(), null);
+		return virtualHunterPosition;
 	}
 	
 	public ArrayList<ArrayList<CellInfo>> getView() {
