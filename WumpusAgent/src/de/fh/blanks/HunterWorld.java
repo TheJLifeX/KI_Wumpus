@@ -14,7 +14,6 @@ import java.util.NoSuchElementException;
 public class HunterWorld {
 	private ArrayList<ArrayList<CellInfo>> view;
 
-	private HunterPercept percept;
 	private HunterAction previousAction;
 	private HunterAction nextAction = HunterAction.GO_FORWARD;
 	private Hashtable<Integer, Integer> previousStenchRadar;
@@ -121,15 +120,15 @@ public class HunterWorld {
 			int xCor = 1;
 			int yCor = 1;
 			Point wall = new Point(0,0);
-			for(int i = 0; i < 4; ++i){
+			for(int i = 1; i <= 4; ++i){
 				if(i % 2 == 0){
-					if(get(hunterPosition.getX() + xCor, hunterPosition.getY()).getType() != null)
+					if(get(hunterPosition.getX() + xCor, hunterPosition.getY()) != null)
 						++count;
 					else
 						wall = new Point(hunterPosition.getX() + xCor, hunterPosition.getY());
 					xCor -= 2;
 				}else{
-					if(get(hunterPosition.getX(), hunterPosition.getY() + yCor).getType() != null)
+					if(get(hunterPosition.getX(), hunterPosition.getY() + yCor) != null)
 						++count;
 					else
 						wall = new Point(hunterPosition.getX(), hunterPosition.getY() + yCor);
@@ -151,7 +150,6 @@ public class HunterWorld {
 	 *        durch unsere letzte Action.
 	 */
 	public void updateState(HunterPercept percept, HunterActionEffect actionEffect, HunterAction previousAction) {
-		this.percept = percept;
 		/**
 		 * Je nach Sichtbarkeit & Schwierigkeitsgrad (laut Serverkonfiguration) aktuelle
 		 * Wahrnehmung des Hunters. Beim Wumpus erhalten Sie je nach Level mehr oder
@@ -198,10 +196,6 @@ public class HunterWorld {
 					|| this.previousAction == HunterAction.SHOOT
 					|| actionEffect == HunterActionEffect.GAME_INITIALIZED) {
 
-			    if(percept.isBump()){
-			    	simpleWallHeuristic();
-				}
-
 				if (percept.isBreeze() || percept.isStench() || percept.isGlitter()) {
 
 					if (percept.isBreeze()) {
@@ -214,6 +208,10 @@ public class HunterWorld {
 					}
 				} else {
 					this.updateCell(CellType.EMPTY);
+				}
+				
+			    if(percept.isBump()){
+			    	simpleWallHeuristic();
 				}
 			}
 		}
@@ -269,7 +267,8 @@ public class HunterWorld {
 
 		this.nextAction = this.bufferActions.remove();
 
-		print();
+		System.out.println("Wall List:");
+		this.heuristicWallList.forEach(System.out::println);
 
 		if (actionEffect == HunterActionEffect.GAME_OVER) {
 			// Das Spiel ist zum Ende.
