@@ -211,30 +211,29 @@ public class HunterWorld {
 
 		Hashtable<Integer, Integer> stenchRadar = percept.getWumpusStenchRadar();
 
-		// Gebe alle riechbaren Wumpis aus
+		// Gebe alle riechbaren Wumpis aus;
 		if (stenchRadar.isEmpty()) {
 			System.out.println("Kein Wumpi zu riechen");
 		} else {
-			for (Map.Entry<Integer, Integer> g : stenchRadar.entrySet()) {
-				if (g.getValue() == 3) {
+			Map.Entry<Integer, Integer> entry = stenchRadar.entrySet().iterator().next();
+			int key = (int) entry.getKey();
+			int value = (int) entry.getValue();
+
+			if (value == 3) {
+				this.bufferActions.push(HunterAction.SIT);
+			} else if (value == 2 || value == 1) {
+
+				if (this.previousStenchRadar == null || this.previousStenchRadar.get(key) == null) {
 					this.bufferActions.push(HunterAction.SIT);
-				} else if (g.getValue() == 2 || g.getValue() == 1) {
-
-					if (this.previousStenchRadar == null || this.previousStenchRadar.get(g.getKey()) == null) {
-						this.bufferActions.push(HunterAction.SIT);
-						break;
-					}
-
-					if (percept.isRumble() && g.getValue() < this.previousStenchRadar.get(g.getKey())) {
-						this.bufferActions.push(HunterAction.SHOOT);
-						if (numArrows > 0)
-							--numArrows;
-					} else {
-						this.bufferActions.push(HunterAction.SIT);
-					}
+				} else if (percept.isRumble() && value < this.previousStenchRadar.get(key)) {
+					this.bufferActions.push(HunterAction.SHOOT);
+					if (numArrows > 0)
+						--numArrows;
+				} else {
+					this.bufferActions.push(HunterAction.SIT);
 				}
-				break;
 			}
+
 			this.previousStenchRadar = stenchRadar;
 		}
 

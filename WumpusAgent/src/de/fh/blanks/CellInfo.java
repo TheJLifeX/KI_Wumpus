@@ -28,7 +28,7 @@ public class CellInfo
 		this.type = CellType.WALL;
 		this.position = new Point(x, y);
 		this.probabilityPit = probabilityPit;
-		CellInfo.wallList.add(0, this);
+		CellInfo.unknownCells.add(0, this);
 	}
 
 	public Double getEstimate() {
