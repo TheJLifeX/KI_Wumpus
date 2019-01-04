@@ -229,6 +229,8 @@ public class HunterWorld {
 					
 					if (percept.isRumble() && g.getValue() < this.previousStenchRadar.get(g.getKey())) {
 						this.bufferActions.push(HunterAction.SHOOT);
+						if (numArrows > 0)
+							--numArrows;
 					} else {
 						this.bufferActions.push(HunterAction.SIT);
 					}
@@ -239,6 +241,8 @@ public class HunterWorld {
 		}
 
 		this.nextAction = this.bufferActions.remove();
+
+		print();
 	}
 
 	/**
@@ -510,7 +514,7 @@ public class HunterWorld {
 	public void determinateNextActions() {
 
 		try {
-			CellInfo targetCell = CellInfo.getWallList().remove();
+			CellInfo targetCell = CellInfo.getUnknownCells().remove();
 			if (targetCell.getEstimate() >= 110) {
 				System.out.println("Ende :: sichere Welt komplett entdeckt!");
 				this.quitGame();
