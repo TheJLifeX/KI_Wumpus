@@ -182,9 +182,6 @@ public class HunterWorld {
 					if (percept.isBreeze()) {
 						this.updateCell(CellType.BREEZE);
 					}
-					if (percept.isStench()) {
-						this.updateCell(CellType.STENCH);
-					}
 					if (percept.isGlitter()) {
 						this.goldPosition.set(this.hunterPosition);
 						this.updateCell(CellType.GOLD);
@@ -372,8 +369,7 @@ public class HunterWorld {
 			this.goldPosition.set(this.hunterPosition.getX(), this.hunterPosition.getY());
 		}
 
-		CellInfo previousCellInfo = this.set(this.hunterPosition.getX(), this.hunterPosition.getY(),
-				new CellInfo(cellType));
+		CellInfo previousCellInfo = this.set(this.hunterPosition.getX(), this.hunterPosition.getY(), new CellInfo(cellType));
 
 		// prüfe auf null wegen erster Aufruf( game initialized )
 		// prüfe auf CellType.TARGET :: Methode wird aufgerufen, nur wenn der Hunter
@@ -400,17 +396,12 @@ public class HunterWorld {
 				if (targetWall != null) {
 					if (cellType == CellType.BREEZE) {
 						targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
-					} else if (cellType == CellType.STENCH) {
-						targetWall.setProbabilityWumpus(targetWall.getProbabilityWumpus() + 60.0);
 					} else if (cellType == CellType.EMPTY) {
 						targetWall.setProbabilityPit(0.0);
-						targetWall.setProbabilityWumpus(0.0);
 					}
 				} else {
 					if (cellType == CellType.BREEZE) {
 						this.set(x, y, new CellInfo(x, y, 50.0, 0.0));
-					} else if (cellType == CellType.STENCH) {
-						this.set(x, y, new CellInfo(x, y, 0.0, 50.0));
 					} else if (cellType == CellType.EMPTY) {
 						this.set(x, y, new CellInfo(x, y, 0.0, 0.0));
 					}
@@ -427,18 +418,13 @@ public class HunterWorld {
 				if (targetWall != null) {
 					if (cellType == CellType.BREEZE) {
 						targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
-					} else if (cellType == CellType.STENCH) {
-						targetWall.setProbabilityWumpus(targetWall.getProbabilityWumpus() + 60.0);
 					} else if (cellType == CellType.EMPTY) {
 						targetWall.setProbabilityPit(0.0);
-						targetWall.setProbabilityWumpus(0.0);
 					}
 
 				} else {
 					if (cellType == CellType.BREEZE) {
 						this.set(x, y, new CellInfo(x, y, 50.0, 0.0));
-					} else if (cellType == CellType.STENCH) {
-						this.set(x, y, new CellInfo(x, y, 0.0, 50.0));
 					} else if (cellType == CellType.EMPTY) {
 						this.set(x, y, new CellInfo(x, y, 0.0, 0.0));
 					}
@@ -454,18 +440,13 @@ public class HunterWorld {
 			if (targetWall != null) {
 				if (cellType == CellType.BREEZE) {
 					targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
-				} else if (cellType == CellType.STENCH) {
-					targetWall.setProbabilityWumpus(targetWall.getProbabilityWumpus() + 60.0);
 				} else if (cellType == CellType.EMPTY) {
 					targetWall.setProbabilityPit(0.0);
-					targetWall.setProbabilityWumpus(0.0);
 				}
 
 			} else {
 				if (cellType == CellType.BREEZE) {
 					this.set(x, y, new CellInfo(x, y, 50.0, 0.0));
-				} else if (cellType == CellType.STENCH) {
-					this.set(x, y, new CellInfo(x, y, 0.0, 50.0));
 				} else if (cellType == CellType.EMPTY) {
 					this.set(x, y, new CellInfo(x, y, 0.0, 0.0));
 				}
@@ -480,18 +461,13 @@ public class HunterWorld {
 			if (targetWall != null) {
 				if (cellType == CellType.BREEZE) {
 					targetWall.setProbabilityPit(targetWall.getProbabilityPit() + 60.0);
-				} else if (cellType == CellType.STENCH) {
-					targetWall.setProbabilityWumpus(targetWall.getProbabilityWumpus() + 60.0);
 				} else if (cellType == CellType.EMPTY) {
 					targetWall.setProbabilityPit(0.0);
-					targetWall.setProbabilityWumpus(0.0);
 				}
 
 			} else {
 				if (cellType == CellType.BREEZE) {
 					this.set(x, y, new CellInfo(x, y, 50.0, 0.0));
-				} else if (cellType == CellType.STENCH) {
-					this.set(x, y, new CellInfo(x, y, 0.0, 50.0));
 				} else if (cellType == CellType.EMPTY) {
 					this.set(x, y, new CellInfo(x, y, 0.0, 0.0));
 				}
