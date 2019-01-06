@@ -31,7 +31,7 @@ public class CellInfo
 		CellInfo.unknownCells.add(0, this);
 	}
 
-	public Double getEstimate() {
+	public double getProbabilityPit() {
 		return this.probabilityPit;
 	}
 	
@@ -41,10 +41,6 @@ public class CellInfo
 
 	public void setPosition(Point position) {
 		this.position = position;
-	}
-
-	public double getProbabilityPit() {
-		return probabilityPit;
 	}
 
 	public void setProbabilityPit(double probabilityPit) {
@@ -76,7 +72,7 @@ public class CellInfo
 		CellInfo.unknownCells.sort(new Comparator<CellInfo>() {
 			@Override
 			public int compare(CellInfo c1, CellInfo c2) {
-				return Double.compare(c1.getEstimate(), c2.getEstimate());
+				return Double.compare(c1.getProbabilityPit(), c2.getProbabilityPit());
 			}
 		});
 	}
