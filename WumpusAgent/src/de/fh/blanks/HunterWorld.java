@@ -25,7 +25,6 @@ public class HunterWorld {
 	private Point goldPosition = new Point(-1, -1);
 	private boolean hasGold = false;
 	private boolean wumpusAlive = true;
-	private LinkedList<Point> wallList = new LinkedList<>();
 
 	/**
 	 * Hier wird einen Puffer von Actions gespeichert. Zum beispiel wenn der HUNTER
@@ -143,7 +142,12 @@ public class HunterWorld {
 			this.wumpusAlive = false;
 			++wumpiKilled;
 		}
-
+		
+		if (actionEffect == HunterActionEffect.GAME_OVER) {
+			// Das Spiel ist zum Ende.
+			printQuitGame();
+			print();
+		}
 
 		/*
 		 * Mögliche Percepts Über die Welt erhält der Wumpushunter:
@@ -208,11 +212,15 @@ public class HunterWorld {
 
         // Gebe alle riechbaren Wumpis aus;
 		if (stenchRadar.isEmpty()) {
-			System.out.println("Kein Wumpi zu riechen");
+//			System.out.println("Kein Wumpi zu riechen");
 		} else {
-			if (this.wallList.contains(this.getVirtualPositionHunter(hunterPosition, hunterDirection))) {
+			Point virtualPosition = this.getVirtualPositionHunter(hunterPosition, hunterDirection);
+			if (virtualPosition.getX() == 0 || virtualPosition.getY() == 0 ||
+					(this.get(virtualPosition) != null && this.get(virtualPosition).getType() == CellType.WALL )) {
+				
 				// entweder turn_left oder turn_right
 				this.bufferActions.push(HunterAction.TURN_LEFT);
+				
 			} else {
 				Map.Entry<Integer, Integer> entry = stenchRadar.entrySet().iterator().next();
 				int key = (int) entry.getKey();
@@ -235,14 +243,8 @@ public class HunterWorld {
 			}
 			this.previousStenchRadar = stenchRadar;
 		}
-
+		
 		this.nextAction = this.bufferActions.remove();
-
-		if (actionEffect == HunterActionEffect.GAME_OVER) {
-			// Das Spiel ist zum Ende.
-			this.nextAction = HunterAction.QUIT_GAME;
-			printQuitGame();
-		}
 	}
 
 	/**
@@ -268,6 +270,10 @@ public class HunterWorld {
 		} catch (IndexOutOfBoundsException e) {
 			return null;
 		}
+	}
+	
+	public CellInfo get(Point p) {
+		return this.get(p.getX(), p.getY());
 	}
 
 	/**
@@ -360,8 +366,8 @@ public class HunterWorld {
 
 	public void printQuitGame(){
 		String gold = (hasGold) ? "Ja" : "Nein";
-		String out = "Anzahl Pfeile: " + maxArrows  + ", Pfeile geschossen: " + (maxArrows - numArrows) + " Wumpi getötet: " + wumpiKilled
-				+ " Gold gefunden?: " + gold;
+		String out = "Anzahl Pfeile: " + maxArrows  + ", Pfeile geschossen: " + (maxArrows - numArrows) + ", Wumpi getötet: " + wumpiKilled
+				+ ", Gold gefunden?: " + gold;
 		System.out.println(out);
 	}
 
@@ -393,9 +399,15 @@ public class HunterWorld {
 
 	private void setProbabilityOfCell(CellType cellType, int x, int y){
 		CellInfo targetUnkwonCell = this.get(x, y);
+		
 		if (targetUnkwonCell != null) {
+			
+			if(targetUnkwonCell.getType() == CellType.WALL) {
+				return;
+			}
+			
 			if (cellType == CellType.BREEZE) {
-				targetUnkwonCell.setProbabilityPit(targetUnkwonCell.getProbabilityPit() + 60.0);
+				targetUnkwonCell.setProbabilityPit(targetUnkwonCell.getProbabilityPit() + 50.0);
 			} else if (cellType == CellType.EMPTY) {
 				targetUnkwonCell.setProbabilityPit(0.0);
 			}
@@ -450,7 +462,7 @@ public class HunterWorld {
 
 		try {
 			CellInfo targetCell = CellInfo.getUnknownCells().remove();
-			if (targetCell.getEstimate() >= 110) {
+			if (targetCell.getProbabilityPit() >= 100) {
 				System.out.println("Ende :: sichere Welt komplett entdeckt!");
 				this.quitGame();
 				return;
@@ -460,7 +472,6 @@ public class HunterWorld {
 			Suche suche = new Breitensuche(this, targetPosition);
 			this.bufferActions = suche.start();
 		} catch (NoSuchElementException e) {
-			this.bufferActions.push(HunterAction.QUIT_GAME);
 			System.out.println("Ende :: Welt komplett entdeckt!");
 			this.quitGame();
 		}
@@ -474,8 +485,7 @@ public class HunterWorld {
 	 */
 	private void setWallInToView(Point hunterPosition, Direction hunterDirection) {
 		Point virtualHunterPosition = getVirtualPositionHunter(hunterPosition, hunterDirection);
-		this.set(virtualHunterPosition.getX(), virtualHunterPosition.getY(), null);
-		this.wallList.add(virtualHunterPosition);
+		this.set(virtualHunterPosition.getX(), virtualHunterPosition.getY(), new CellInfo(CellType.WALL));
 	}
 	
 	private Point getVirtualPositionHunter(Point hunterPosition, Direction hunterDirection) {
