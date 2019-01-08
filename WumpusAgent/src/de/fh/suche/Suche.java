@@ -11,7 +11,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Based on the algorithm of daniel Created on 22.09.16. Generische Klasse für unsere Suchalgorithmen
+ * Based on the algorithm of daniel Created on 22.09.16. Generische Klasse für
+ * unsere Suchalgorithmen
  */
 public abstract class Suche {
 
@@ -19,8 +20,8 @@ public abstract class Suche {
 		TIEFENSUCHE, BREITENSUCHE, DIJKSTAR, BESTENSUCHE, ASTERN
 	}
 
-	private Point zielPosition;
-	
+	private Point goalPosition;
+
 	private HunterWorld hunterWorld;
 
 	// In der Openlist befinden sich die zu expandierenden Knoten
@@ -32,33 +33,41 @@ public abstract class Suche {
 
 	private int countSysout = 0;
 
-	public Suche(HunterWorld hunterWorld, Point zielPosition) {
-		this.zielPosition = zielPosition;
+	public Suche(HunterWorld hunterWorld, Point goalPosition) {
+		this.goalPosition = goalPosition;
 		this.hunterWorld = hunterWorld;
-		
-		CellInfo zielPositionCellInfo = hunterWorld.get(zielPosition.getX(), zielPosition.getY());
-		if ( zielPositionCellInfo == null || zielPositionCellInfo.getType() == CellType.UNKWON || zielPositionCellInfo.getType() == CellType.WALL) {
-			throw new IllegalArgumentException("zielPostion liegt außerhalb der erreichbare Welt");
+
+		if (goalPosition.equals(hunterWorld.getHunterPosition())) {
+			throw new IllegalArgumentException("zielPosition kann nicht gleich aktuelle hunterPosition sein");
 		}
-		
+
+		CellInfo goalPositionCellInfo = hunterWorld.get(goalPosition.getX(), goalPosition.getY());
+		if (goalPositionCellInfo == null || goalPositionCellInfo.getType() == CellType.UNKWON
+				|| goalPositionCellInfo.getType() == CellType.WALL) {
+			throw new IllegalArgumentException("zielPosition liegt außerhalb der erreichbare Welt");
+		}
+
 		openList = new LinkedList<>();
 		closedList = new HashSet<Integer>();
 	}
 
 	/**
-	 * Starte die Suche.   
-	 * @return die Liste von HunterActions,um vom Startposition der Hunter bis zur gewünschter 
-	 * zielPostion zu gehen.
+	 * Starte die Suche.
+	 * 
+	 * @return die Liste von HunterActions,um vom Startposition der Hunter bis zur
+	 *         gewünschter zielPostion zu gehen.
 	 */
 	public LinkedList<HunterAction> start() {
 		// Baue den Baum gemäß gewünschter Suche auf
 
-		if (this.zielPosition == null || this.hunterWorld == null || this.zielPosition.getX() < 0 || this.zielPosition.getY() < 0) {
+		if (this.goalPosition == null || this.hunterWorld == null || this.goalPosition.getX() < 0
+				|| this.goalPosition.getY() < 0) {
 			throw new NullPointerException("Ungültiger Zielzustand oder HunterWorld ist leer");
 		}
 
 		// Erzeuge Wurzelknoten
-		this.fuegeKnotenEin(new Knoten(hunterWorld.getView(), hunterWorld.getHunterPosition(), hunterWorld.getHunterDirection()));
+		this.fuegeKnotenEin(
+				new Knoten(hunterWorld.getView(), hunterWorld.getHunterPosition(), hunterWorld.getHunterDirection()));
 
 		// Solange noch Expansionskandidaten vorhanden (Mindestens die Wurzel)
 		while (!openList.isEmpty()) {
@@ -66,15 +75,16 @@ public abstract class Suche {
 			// Es wird *immer* der erste Knoten aus der Openlist entnommen
 			// Die Sortierung der Openlist bestimmt die Suche bzw. Ihr :-)
 			Knoten expansionsKandidat = this.openList.remove(0);
-			
+
 			// Wird ein Knoten aus der Openlist entfernt landet
 			// dieser sofort in der Closelist, damit dieser nicht noch einmal
 			// expandiert wird (wir wollen keine loops im Baum!)
 			this.closedList.add(expansionsKandidat.hashCode());
 
 			// Schaue ob Knoten Ziel ist
-			if (expansionsKandidat.isZiel(this.zielPosition)) {
-				// Kandidat entspricht dem gewünschten Zielzustand ( also Hunter an der ZielPostion) 
+			if (expansionsKandidat.isZiel(this.goalPosition)) {
+				// Kandidat entspricht dem gewünschten Zielzustand ( also Hunter an der
+				// ZielPostion)
 				Knoten loesungsKnoten = expansionsKandidat;
 //				System.out.println("\nDie Suche war Erfolgsreich!\n");
 				return loesungsKnoten.berechneHunterActions();
@@ -92,13 +102,14 @@ public abstract class Suche {
 		/**
 		 * Die Nachfolgerknoten werden der Reihe nach in die Openlist verschoben.
 		 * 
-		 * TODO diese Reihenfolgen eventuell anpassen. Also für einen effizenten Suchalgorithmus.
+		 * TODO diese Reihenfolgen eventuell anpassen. Also für einen effizenten
+		 * Suchalgorithmus.
 		 */
 
 		berechneNachfolger(vorgaenger, HunterAction.GO_FORWARD);
 
 		berechneNachfolger(vorgaenger, HunterAction.TURN_LEFT);
-		
+
 		berechneNachfolger(vorgaenger, HunterAction.TURN_RIGHT);
 
 		if (countSysout % 100 == 0) {
