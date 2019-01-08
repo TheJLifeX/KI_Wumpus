@@ -58,9 +58,9 @@ public class CellInfo
 	@Override
 	public String toString() {
 		if (this.type != CellType.UNKWON) {
-			return "(" + type.name() + ")";
+			return this.type == CellType.WALL ? "(" + type.name() + ")" : type.name();
 		} else {
-			return "(" + type.name().substring(0, 2) + " pit:" + this.probabilityPit + ")";
+			return "pit:" + this.probabilityPit + "%";
 		}
 	}
     
