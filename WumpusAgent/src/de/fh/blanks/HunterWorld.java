@@ -38,6 +38,7 @@ public class HunterWorld {
 	 * Konfiguration zum Töten vom Wumpi
 	 */
 	private boolean turned = false;
+	// Für ein wumpus auf 0 und mehere Wumpus auf 1 setzen.
 	private final int MAX_COUNT_SUCCESSIVE_TURN = 1;
 	private int countSuccessiveTurn = 0;
 
@@ -178,9 +179,7 @@ public class HunterWorld {
 			}
 
 			// Letzte Bewegungsaktion war gültig
-			if (this.previousAction == HunterAction.GO_FORWARD || this.previousAction == HunterAction.GRAB
-					|| this.previousAction == HunterAction.SHOOT
-					|| actionEffect == HunterActionEffect.GAME_INITIALIZED) {
+			if (this.previousAction != HunterAction.TURN_RIGHT && this.previousAction != HunterAction.TURN_LEFT) {
 
 				if (percept.isBreeze() || percept.isStench() || percept.isGlitter()) {
 
@@ -234,6 +233,7 @@ public class HunterWorld {
 				int key = (int) entry.getKey();
 				int value = (int) entry.getValue();
 
+				// if (this.turned && !percept.isBump())
 				if (this.turned) {
 					this.bufferActions.push(HunterAction.SHOOT);
 					if (numArrows > 0)
