@@ -19,13 +19,14 @@ public class HunterWorld {
 	private Hashtable<Integer, Integer> previousStenchRadar;
 	private Point hunterPosition = new Point(1, 1);
 	private Direction hunterDirection = Direction.EAST;
-	private int numArrows = 35;
+	private int numArrows = 5;
 	private int maxArrows = numArrows;
 	private int wumpiKilled = 0;
 	private Point goldPosition = new Point(-1, -1);
 	private boolean hasGold = false;
 	private boolean worldCompletelyDiscovered = false;
 	private boolean gameOver = false;
+	private boolean wumpusCertainReachable = false;
 
 	/**
 	 * Hier wird einen Puffer von Actions gespeichert. Zum beispiel wenn der HUNTER
@@ -197,8 +198,7 @@ public class HunterWorld {
 			}
 		}
 
-		if ((actionEffect == HunterActionEffect.NO_MORE_SHOOTS && this.hasGold)
-				|| (this.wumpiKilled > 0 && this.hasGold)) {
+		if ((actionEffect == HunterActionEffect.NO_MORE_SHOOTS) || (this.wumpiKilled > 0 && this.hasGold)) {
 			if (!gameOver) {
 				this.quitGame();
 			}
@@ -233,7 +233,10 @@ public class HunterWorld {
 				int key = (int) entry.getKey();
 				int value = (int) entry.getValue();
 
-				// if (this.turned && !percept.isBump())
+				if (value == 1)
+					this.wumpusCertainReachable = true;
+
+//				if (this.turned && !percept.isBump()) { // Für Maps mit viele Wände in der Mitte
 				if (this.turned) {
 					this.bufferActions.push(HunterAction.SHOOT);
 					if (numArrows > 0)
@@ -396,8 +399,8 @@ public class HunterWorld {
 		String gold = (hasGold) ? "Ja" : "Nein";
 		String out = "Anzahl Pfeile: " + maxArrows + ", Pfeile geschossen: " + (maxArrows - numArrows)
 				+ ", Wumpi getötet: " + wumpiKilled + ", Gold gefunden?: " + gold;
-		if (wumpiKilled > 0)
-			out += "\nDurschnittliche benutzte Pfeile pro Wumpus: " + (maxArrows - numArrows) / (double) wumpiKilled;
+//		if (wumpiKilled > 0)
+//			out += "\nDurschnittliche benutzte Pfeile pro Wumpus: " + (maxArrows - numArrows) / (double) wumpiKilled;
 		System.out.println(out);
 	}
 
@@ -497,7 +500,14 @@ public class HunterWorld {
 			if (targetCell.getProbabilityPit() >= 100) {
 				System.out.println("Ende :: sichere Welt komplett entdeckt!");
 				this.worldCompletelyDiscovered = true;
-				this.searchWumpus();
+				if (this.wumpusCertainReachable && this.wumpiKilled == 0) {
+					this.searchWumpus();
+				} else {
+					if (!gameOver) {
+						this.quitGame();
+					}
+					this.gameOver = true;
+				}
 				return;
 			}
 			Point targetPosition = targetCell.getPosition();
@@ -507,7 +517,14 @@ public class HunterWorld {
 		} catch (NoSuchElementException e) {
 			System.out.println("Ende :: Welt komplett entdeckt!");
 			this.worldCompletelyDiscovered = true;
-			this.searchWumpus();
+			if (this.wumpusCertainReachable && this.wumpiKilled == 0) {
+				this.searchWumpus();
+			} else {
+				if (!gameOver) {
+					this.quitGame();
+				}
+				this.gameOver = true;
+			}
 		}
 	}
 
