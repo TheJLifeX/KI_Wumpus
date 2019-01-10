@@ -1,0 +1,16 @@
+15 15
+W W W W W W W W W W W W W W W 
+W E E E E E E E E E W E E G W 
+W E E E W E E W W W P E W E W 
+W W W W P E E P W E E E E P W 
+W E E E E WR,WEST E E W E E E E E W 
+W E E WR,EAST E E E E W E E WR,EAST E E W 
+W P E E E E E P W E E P E E W 
+W E E E E E E W W E E E E E W 
+W E E P E E E E E P E W WR,SOUTH E W 
+W E W W W W E E E E E W E E W 
+W E W E E E E E E WR,EAST E W E E W 
+W E W P E E E W W E W E E E W 
+W E W E E E WR,SOUTH E E P E E WR,SOUTH E W 
+W E E E E E E E E E E E E E W 
+W W W W W W W W W W W W W W W 
