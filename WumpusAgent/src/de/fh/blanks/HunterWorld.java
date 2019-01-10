@@ -40,11 +40,12 @@ public class HunterWorld {
 	 */
 	private boolean turned = false;
 	// Für ein wumpus auf 0 und mehere Wumpus auf 1 setzen.
-	private final int MAX_COUNT_SUCCESSIVE_TURN = 1;
+	private final int MAX_COUNT_SUCCESSIVE_TURN = 0;
 	private int countSuccessiveTurn = 0;
 
 	public HunterWorld() {
 		view = new ArrayList<ArrayList<CellInfo>>();
+		CellInfo.getUnknownCells().clear();
 	}
 
 	/**
