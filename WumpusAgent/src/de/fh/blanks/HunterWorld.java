@@ -126,7 +126,7 @@ public class HunterWorld {
 	}
 
 	/**
-	 * Wichtig zu verstehen: Die updateState Methode wird zuerst ausgeführt, dann
+	 * Wichtig: Die updateState Methode wird zuerst ausgeführt, dann
 	 * die action Methode.
 	 * 
 	 * @param percept: Information, die wir von der Server bekommen haben, durch
@@ -309,7 +309,7 @@ public class HunterWorld {
 	}
 
 	/**
-	 * Fügt ein Element ein Element an der gewünschte Postion ein, oder aktualisiert
+	 * Fügt ein Element an der gewünschte Position in der View ein, oder aktualisiert
 	 * ihn, wenn er schon vorhanden ist
 	 * 
 	 * @return das vorherige Element, wenn ein Element aktualisiert wurde oder null
@@ -396,6 +396,9 @@ public class HunterWorld {
 		System.out.println(out);
 	}
 
+	/**
+	 * Gibt die gefragten Information am Ende des Spiels aus der Konsole aus.
+	 */
 	public void printQuitGame() {
 		String gold = (hasGold) ? "Ja" : "Nein";
 		String out = "Anzahl Pfeile: " + maxArrows + ", Pfeile geschossen: " + (maxArrows - numArrows)
@@ -410,7 +413,7 @@ public class HunterWorld {
 	}
 
 	/**
-	 * Aktulisiert eine Zelle, an der Stelle, wo der Hunter liegt, auf Basis von der
+	 * Aktualisiert eine Zelle, an der Stelle, wo der Hunter liegt, auf Basis von der
 	 * Information, die vom Server bekommen wurden.
 	 * 
 	 * @param cellType
@@ -456,7 +459,7 @@ public class HunterWorld {
 	}
 
 	/**
-	 * Aktulisiert bzw. setzt passende CellInfo von Typ "Unkwon" Cell rund um den
+	 * Aktulisiert bzw. setzt passende CellInfo von Typ "Unkwon" rund um den
 	 * Aktuelle Position der Hunter.
 	 * 
 	 * @param cellType
@@ -492,7 +495,9 @@ public class HunterWorld {
 	}
 
 	/**
-	 * Bestimmt die nächsten Actions und speichert die in der bufferActions list.
+	 * Holt sich das erste Element(CellInfo) von der unKwonCells-Liste.
+	 * Bestimmt die notwendigen Actions um diese Zelle zu erreichen 
+	 * und speichert die in der bufferActions-Liste.
 	 */
 	public void exploreWorld() {
 
@@ -599,6 +604,13 @@ public class HunterWorld {
 		return point;
 	}
 
+	/**
+	 * Wird aufgerufen falls man sicher gestellt hat, dass der Wumpus in der erreichbare Welt ist.
+	 * und Nachdem der Hunter die komplette Welt entdeckt hat, ohne den Wumpus getötet zu haben.
+	 * 
+	 *  Suche den Wumpus, indem züfallige Zelle in der erreichbare sichere Welt als Ziel gesetzt werden,
+	 *  und die AKtions um diese Zelle zu erreichen bestimmen werden. 
+	 */
 	private void searchWumpus() {
 		Point targetPosition = this.getRandomPointFromView();
 		this.get(targetPosition.getX(), targetPosition.getY()).setType(CellType.TARGET);
