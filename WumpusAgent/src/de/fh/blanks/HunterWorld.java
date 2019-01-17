@@ -19,7 +19,7 @@ public class HunterWorld {
 	private Hashtable<Integer, Integer> previousStenchRadar;
 	private Point hunterPosition = new Point(1, 1);
 	private Direction hunterDirection = Direction.EAST;
-	private int numArrows = 5;
+	private int numArrows = 15;
 	private int maxArrows = numArrows;
 	private int wumpiKilled = 0;
 	private Point goldPosition = new Point(-1, -1);
@@ -40,7 +40,7 @@ public class HunterWorld {
 	 */
 	private boolean turned = false;
 	// Für ein wumpus auf 0 und mehere Wumpus auf 1 setzen.
-	private final int MAX_COUNT_SUCCESSIVE_TURN = 0;
+	private final int MAX_COUNT_SUCCESSIVE_TURN = 1;
 	private int countSuccessiveTurn = 0;
 
 	public HunterWorld() {
