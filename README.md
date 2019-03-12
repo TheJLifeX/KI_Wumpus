@@ -1,4 +1,4 @@
 # KI Wumpus
 **AI Agent | Hunt the wumpus game**
 ---
-[Learn more](https://chrome.google.com/webstore/detail/datavolumecheck/odekhobcnkniaagelmfknkklabnodkkg "DataVolumeCheck Extension in the Chrome store.")
+[Learn more](https://ai-hunt-the-wumpus.ulrichtiofack.site "View AI Agent in the wumpus game")
